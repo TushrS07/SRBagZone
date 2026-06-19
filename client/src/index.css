@@ -665,7 +665,7 @@ img {
 }
 
 .footer-contact-num {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-size: 22px;
   color: #fff !important;
   letter-spacing: 0.5px;
@@ -922,7 +922,10 @@ img {
   font-weight: 500;
   box-shadow: var(--shadow-md);
   z-index: 110;
-  transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1),
+    visibility 0s linear 0.3s;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -930,6 +933,10 @@ img {
 
 .toast.show {
   transform: translateX(-50%) translateY(0);
+  visibility: visible;
+  pointer-events: auto;
+  transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1),
+    visibility 0s linear 0s;
 }
 
 .toast-check {
