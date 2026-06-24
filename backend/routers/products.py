@@ -22,28 +22,7 @@ Admin = Annotated[dict, Depends(require_admin)]
 
 
 # ─── Helpers ────────────────────────────────────────────────────────────────
-async def _hydrate(session: AsyncSession, p: Product) -> dict:
-    """Format a product with joined category + brand names and image list."""
-    cat_name = brand_name = None
-    if p.category_id:
-        cat_row = await session.execute(select(Category).where(Category.id == p.category_id))
-        c = cat_row.scalar_one_or_none()
-        cat_name = c.name if c else None
-    if p.brand_id:
-        brand_row = await session.execute(select(Brand).where(Brand.id == p.brand_id))
-        b = brand_row.scalar_one_or_none()
-        brand_name = b.name if b else None
-
-    img_rows = await session.execute(
-        select(ProductImage)
-        .where(ProductImage.product_id == p.id)
-        .order_by(ProductImage.position.asc(), ProductImage.id.asc())
-    )
-    images = [
-        {"id": str(i.id), "url": i.url, "public_id": i.public_id, "is_primary": i.is_primary, "position": i.position}
-        for i in img_rows.scalars().all()
-    ]
-
+def _fmt_product(p: Product, cat_name: Optional[str], brand_name: Optional[str], images: list) -> dict:
     return {
         "id": str(p.id),
         "name": p.name,
@@ -56,10 +35,74 @@ async def _hydrate(session: AsyncSession, p: Product) -> dict:
         "brand_id": str(p.brand_id) if p.brand_id else None,
         "brand_name": brand_name,
         "image_url": p.image_url,
-        "images": images,
+        "images": [
+            {"id": str(i.id), "url": i.url, "public_id": i.public_id,
+             "is_primary": i.is_primary, "position": i.position}
+            for i in images
+        ],
         "created_at": p.created_at.isoformat() if p.created_at else None,
         "updated_at": p.updated_at.isoformat() if p.updated_at else None,
     }
+
+
+async def _batch_hydrate(session: AsyncSession, stmt) -> list[dict]:
+    """
+    Run a SELECT for products and return hydrated dicts using exactly 2 queries
+    total (1 for products+category+brand JOIN, 1 for product_images IN(...)).
+    Replaces the previous N+1 pattern.
+
+    `stmt` should be a SELECT against Product (filters / order / limit applied).
+    """
+    # 1) Wrap the caller's products SELECT with LEFT JOINs to bring in
+    #    category name + brand name in a single round-trip.
+    base = stmt.add_columns(
+        Category.name.label("category_name"),
+        Brand.name.label("brand_name"),
+    ).outerjoin(Category, Category.id == Product.category_id) \
+     .outerjoin(Brand, Brand.id == Product.brand_id)
+
+    result = await session.execute(base)
+    rows = result.all()
+    if not rows:
+        return []
+
+    products = [r[0] for r in rows]
+    product_ids = [p.id for p in products]
+
+    # 2) Batch-fetch all images for those products
+    img_stmt = (
+        select(ProductImage)
+        .where(ProductImage.product_id.in_(product_ids))
+        .order_by(ProductImage.position.asc(), ProductImage.id.asc())
+    )
+    img_rows = (await session.execute(img_stmt)).scalars().all()
+    images_by_pid: dict[int, list] = {}
+    for img in img_rows:
+        images_by_pid.setdefault(img.product_id, []).append(img)
+
+    return [
+        _fmt_product(p, row.category_name, row.brand_name, images_by_pid.get(p.id, []))
+        for p, row in [(r[0], r) for r in rows]
+    ]
+
+
+async def _hydrate_one(session: AsyncSession, p: Product) -> dict:
+    """Single-product hydrate used by the detail endpoint (3 queries total)."""
+    cat_name = brand_name = None
+    if p.category_id:
+        cat_row = await session.execute(select(Category).where(Category.id == p.category_id))
+        c = cat_row.scalar_one_or_none()
+        cat_name = c.name if c else None
+    if p.brand_id:
+        brand_row = await session.execute(select(Brand).where(Brand.id == p.brand_id))
+        b = brand_row.scalar_one_or_none()
+        brand_name = b.name if b else None
+    img_rows = await session.execute(
+        select(ProductImage)
+        .where(ProductImage.product_id == p.id)
+        .order_by(ProductImage.position.asc(), ProductImage.id.asc())
+    )
+    return _fmt_product(p, cat_name, brand_name, img_rows.scalars().all())
 
 
 def _parse_optional_int(v: Optional[str]) -> Optional[int]:
@@ -101,9 +144,7 @@ async def list_products(
     if brand_id is not None:
         stmt = stmt.where(Product.brand_id == brand_id)
     stmt = stmt.order_by(Product.created_at.desc()).offset(skip).limit(limit)
-    result = await session.execute(stmt)
-    products = result.scalars().all()
-    return [await _hydrate(session, p) for p in products]
+    return await _batch_hydrate(session, stmt)
 
 
 @router.get("/{pid}", summary="Get a single product (active only)")
@@ -111,15 +152,14 @@ async def get_product(pid: str, session: Session):
     p = await _get_or_404(session, pid)
     if not p.is_active:
         raise HTTPException(status_code=404, detail={"message": "Product not found"})
-    return await _hydrate(session, p)
+    return await _hydrate_one(session, p)
 
 
 # ─── Admin ──────────────────────────────────────────────────────────────────
 @admin_router.get("", summary="List all products including inactive")
 async def admin_list_products(admin: Admin, session: Session, skip: int = 0, limit: int = 100):
     stmt = select(Product).order_by(Product.created_at.desc()).offset(skip).limit(limit)
-    result = await session.execute(stmt)
-    return [await _hydrate(session, p) for p in result.scalars().all()]
+    return await _batch_hydrate(session, stmt)
 
 
 @admin_router.post("", status_code=201, summary="Create a product")
@@ -168,7 +208,7 @@ async def create_product(
 
     await session.commit()
     await session.refresh(p)
-    return await _hydrate(session, p)
+    return await _hydrate_one(session, p)
 
 
 @admin_router.put("/{pid}", summary="Update a product")
@@ -217,7 +257,7 @@ async def update_product(
     session.add(p)
     await session.commit()
     await session.refresh(p)
-    return await _hydrate(session, p)
+    return await _hydrate_one(session, p)
 
 
 @admin_router.patch("/{pid}/toggle", summary="Toggle product active status")
@@ -228,7 +268,7 @@ async def toggle_product(pid: str, admin: Admin, session: Session):
     session.add(p)
     await session.commit()
     await session.refresh(p)
-    return await _hydrate(session, p)
+    return await _hydrate_one(session, p)
 
 
 @admin_router.delete("/{pid}", status_code=204, summary="Delete a product")
