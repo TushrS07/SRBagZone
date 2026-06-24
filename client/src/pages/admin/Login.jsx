@@ -23,13 +23,13 @@ export default function AdminLogin() {
     setError('')
     setLoading(true)
     try {
-      const { user } = await api.login(email, password)
+      const { user, token } = await api.login(email, password)
       if (user.role !== 'admin') {
         setError('That account is not an admin.')
         await api.logout().catch(() => {})
         return
       }
-      setUserAuth(user)
+      setUserAuth(user, token)
       navigate(redirectTo, { replace: true })
     } catch (err) {
       setError(err.message || 'Login failed')

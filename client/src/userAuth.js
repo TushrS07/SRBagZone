@@ -1,8 +1,14 @@
 // Single unified auth — both customer and admin use the same /api/auth/* endpoints.
-// The JWT lives in an HttpOnly cookie set by the server; localStorage holds only
-// the user profile for UI display (name, role, etc.).
+// Two storage layers:
+//   • Backend sets an HttpOnly cookie (works same-origin, in prod behind HTTPS).
+//   • Frontend ALSO stores the token in localStorage so the API client can send
+//     it as a Bearer header. This fallback is essential for cross-origin dev
+//     (e.g. localhost:5173 → 192.168.1.11:8000 from a LAN-shared dev server).
+//
+// localStorage tokens are XSS-readable; treat that as a dev-only trade-off.
 
 const PROFILE_KEY = 'srbag_user'
+const TOKEN_KEY = 'srbag_token'
 const EVENT = 'srbag-auth-change'
 
 export function getUser() {
@@ -15,13 +21,21 @@ export function getUser() {
   }
 }
 
-export function setUserAuth(user) {
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY) || ''
+}
+
+export function setUserAuth(user, token) {
   localStorage.setItem(PROFILE_KEY, JSON.stringify(user))
+  if (token) {
+    localStorage.setItem(TOKEN_KEY, token)
+  }
   window.dispatchEvent(new Event(EVENT))
 }
 
 export function clearUser() {
   localStorage.removeItem(PROFILE_KEY)
+  localStorage.removeItem(TOKEN_KEY)
   window.dispatchEvent(new Event(EVENT))
 }
 

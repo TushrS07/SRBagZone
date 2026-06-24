@@ -25,8 +25,8 @@ export default function Login() {
     setError('')
     setLoading(true)
     try {
-      const { user } = await api.login(email.trim().toLowerCase(), password)
-      setUserAuth(user)
+      const { user, token } = await api.login(email.trim().toLowerCase(), password)
+      setUserAuth(user, token)
       setToast(`Welcome back, ${user.name}!`)
       // Admins logging in via the customer login page get bounced to admin panel.
       const target = user.role === 'admin' ? '/admin/products' : redirectTo

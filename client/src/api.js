@@ -1,4 +1,4 @@
-import { clearUser } from './userAuth'
+import { clearUser, getToken } from './userAuth'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -10,11 +10,18 @@ async function request(path, { method = 'GET', body, headers = {} } = {}) {
     payload = JSON.stringify(body)
   }
 
+  // Send Bearer token as a fallback for cross-origin dev (mobile / LAN).
+  // The HttpOnly cookie still works for same-origin / production.
+  const token = getToken()
+  if (token && !finalHeaders['Authorization']) {
+    finalHeaders['Authorization'] = `Bearer ${token}`
+  }
+
   const res = await fetch(`${API_URL}${path}`, {
     method,
     headers: finalHeaders,
     body: payload,
-    credentials: 'include', // HttpOnly auth cookie travels here
+    credentials: 'include', // HttpOnly auth cookie travels here too
   })
 
   if (res.status === 401) {

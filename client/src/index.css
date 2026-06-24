@@ -1817,12 +1817,76 @@ a {
   font-size: 13px;
 }
 @media (max-width: 820px) {
-  .admin-shell { grid-template-columns: 1fr; }
-  .admin-sidebar { flex-direction: row; flex-wrap: wrap; padding: 16px; gap: 12px; }
-  .admin-nav { flex-direction: row; flex: 1 1 auto; }
-  .admin-logout { margin-top: 0; }
-  .admin-main { padding: 24px 20px; }
+  .admin-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+  .admin-sidebar {
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 14px;
+    gap: 10px;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .admin-brand {
+    font-size: 16px;
+    margin: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .admin-nav {
+    flex-direction: row;
+    flex: 1 1 auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 4px;
+    padding: 2px;
+  }
+  .admin-nav::-webkit-scrollbar { display: none; }
+  .admin-nav a {
+    padding: 8px 14px;
+    font-size: 13.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .admin-logout {
+    margin-top: 0;
+    padding: 8px 14px;
+    font-size: 13px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .admin-main {
+    padding: 20px 16px;
+    width: 100%;
+    overflow-x: hidden;  /* table wrapper handles horizontal scroll */
+  }
+  .admin-page-head h1 { font-size: 26px; }
   .order-detail-grid { grid-template-columns: 1fr; }
+
+  /* Tables: wrap in a horizontal-scroll container instead of overflowing */
+  .admin-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* On very narrow screens, hide the "SR Bag Zone · Admin" brand text so the
+     nav strip has room. The brand mark is still implicit via the page title. */
+  .admin-brand { display: none; }
+  .admin-logout {
+    padding: 8px 10px;
+    font-size: 12.5px;
+  }
 }
 
 /* Modal */
@@ -1922,7 +1986,12 @@ a {
   font-size: 14px;
 }
 .modal-actions button.checkout-btn {
+  background: var(--ink);
+  color: #fff;
   border: none;
+}
+.modal-actions button.checkout-btn:hover:not(:disabled) {
+  background: var(--accent-deep);
 }
 @media (max-width: 640px) {
   .form-grid { grid-template-columns: 1fr; }
@@ -2472,8 +2541,16 @@ a {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
+  /* Force tables wider than the viewport so the parent's overflow-x kicks in */
   .admin-table {
-    min-width: 720px;  /* force horizontal scroll instead of crunching */
+    min-width: 680px;
+  }
+  /* Headers always nowrap; data cells can wrap so descriptions don't get cut */
+  .admin-table th {
+    white-space: nowrap;
+  }
+  .admin-table td {
+    vertical-align: top;
   }
   .admin-page-head h1 { font-size: 24px; }
 
