@@ -1,23 +1,29 @@
-import { useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { useApp } from '../useApp'
 import { useUser } from '../useUser'
 import { clearUser } from '../userAuth'
+import MobileMenu from './MobileMenu'
 
 export default function Header() {
   const { cartCount, setCartOpen, setToast } = useApp()
   const user = useUser()
-  const isAdmin = user && user.role === 'admin'
+  const isAdmin = user?.role === 'admin'
   const navigate = useNavigate()
+  const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    // Closing is a deliberate side effect when the route changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMobileOpen(false)
+  }, [location.pathname, location.search])
 
   const logout = async () => {
-    try {
-      await api.logout()
-    } catch {
-      // best-effort cookie clear
-    }
+    try { await api.logout() } catch { /* best effort */ }
     clearUser()
     setMenuOpen(false)
     setToast('Signed out')
@@ -27,12 +33,22 @@ export default function Header() {
   return (
     <header className="site-header">
       <div className="header-inner">
+        <button
+          type="button"
+          className="hamburger"
+          aria-label="Open menu"
+          onClick={() => setMobileOpen(true)}
+        >
+          <span /><span /><span />
+        </button>
+
         <Link to="/" className="brand" aria-label="SR Bag Zone home">
           <span className="brand-mark">SR</span>
           <span className="brand-name">
             SR Bag <span>Zone</span>
           </span>
         </Link>
+
         <nav className="nav" aria-label="Primary">
           <NavLink to="/">Shop</NavLink>
           <NavLink to="/?cat=Handbags">Handbags</NavLink>
@@ -40,6 +56,7 @@ export default function Header() {
           <NavLink to="/?cat=School Bags">School</NavLink>
           <NavLink to="/?cat=Travel">Travel</NavLink>
         </nav>
+
         <div className="header-actions">
           {user ? (
             <div className="account-menu">
@@ -84,11 +101,13 @@ export default function Header() {
             onClick={() => setCartOpen(true)}
             aria-label={`Open cart with ${cartCount} items`}
           >
-            <span>Cart</span>
+            <span className="cart-btn-label">Cart</span>
             <span className="cart-count">{cartCount}</span>
           </button>
         </div>
       </div>
+
+      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} />
     </header>
   )
 }
