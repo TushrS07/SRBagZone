@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { api } from '../../api'
 import { FALLBACK_IMG, formatINR } from '../../utils'
+import { useAdminPage } from '../../components/admin/useAdminPage'
 import ProductForm from './ProductForm'
 
 export default function AdminProducts() {
@@ -9,6 +10,20 @@ export default function AdminProducts() {
   const [error, setError] = useState('')
   const [editing, setEditing] = useState(null) // null | {} | product
   const [busyId, setBusyId] = useState(null)
+
+  const headerRight = useMemo(
+    () => (
+      <button type="button" className="btn btn-primary" onClick={() => setEditing({})}>
+        + Add product
+      </button>
+    ),
+    [],
+  )
+  useAdminPage({
+    title: 'Products',
+    subtitle: 'Manage your catalog — visibility, stock, pricing.',
+    right: headerRight,
+  })
 
   const load = async () => {
     try {
@@ -56,18 +71,12 @@ export default function AdminProducts() {
 
   return (
     <div>
-      <div className="admin-page-head">
-        <h1>Products</h1>
-        <button type="button" className="btn btn-primary" onClick={() => setEditing({})}>
-          + Add product
-        </button>
-      </div>
-
       {error && <p style={{ color: '#c0392b' }}>⚠ {error}</p>}
 
       {loading ? (
         <p>Loading…</p>
       ) : (
+        <div className="admin-card admin-table-wrap">
         <table className="admin-table">
           <thead>
             <tr>
@@ -93,17 +102,20 @@ export default function AdminProducts() {
                 <td>{formatINR(p.price)}</td>
                 <td>{p.stock_quantity ?? p.stock ?? 0}</td>
                 <td>
-                  <span className={`pill ${p.is_active ? 'pill-on' : 'pill-off'}`}>
-                    {p.is_active ? 'Active' : 'Hidden'}
-                  </span>
+                  <button
+                    type="button"
+                    className={`pill pill-toggle ${p.is_active ? 'pill-on' : 'pill-off'}`}
+                    onClick={() => onToggle(p.id)}
+                    disabled={busyId === p.id}
+                    title={p.is_active ? 'Click to hide this product' : 'Click to make this product active'}
+                  >
+                    {busyId === p.id ? '…' : p.is_active ? 'Active' : 'Inactive'}
+                  </button>
                 </td>
                 <td>
                   <div className="row-actions">
                     <button type="button" onClick={() => setEditing(p)} disabled={busyId === p.id}>
                       Edit
-                    </button>
-                    <button type="button" onClick={() => onToggle(p.id)} disabled={busyId === p.id}>
-                      {p.is_active ? 'Hide' : 'Show'}
                     </button>
                     <button
                       type="button"
@@ -124,6 +136,7 @@ export default function AdminProducts() {
             )}
           </tbody>
         </table>
+        </div>
       )}
 
       {editing && (

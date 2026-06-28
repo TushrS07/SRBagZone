@@ -10,7 +10,7 @@ from config import settings
 from database import connect_db, close_db, engine
 from cloudinary_config import init_cloudinary
 from rate_limit import limiter
-from routers import auth, products, brands, categories, orders, addresses, payments
+from routers import auth, products, brands, categories, orders, addresses, payments, inquiries
 import os
 import uvicorn
 
@@ -26,9 +26,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="SR Bag Zone API",
+    title="SR Bagz Zone API",
     description=(
-        "Backend for the SR Bag Zone e-commerce platform. Live schema:\n\n"
+        "Backend for the SR Bagz Zone e-commerce platform. Live schema:\n\n"
         "- Single `users` table with `role` (admin/customer)\n"
         "- Normalized `categories`, `brands`, `products` + `product_images`\n"
         "- `orders` + `order_items` + `addresses` + `payments`\n"
@@ -63,6 +63,8 @@ app.include_router(addresses.router)
 app.include_router(orders.router)
 app.include_router(orders.admin_router)
 app.include_router(payments.router)
+app.include_router(inquiries.router)
+app.include_router(inquiries.admin_router)
 
 
 @app.get("/api/health", tags=["health"], summary="Health check")

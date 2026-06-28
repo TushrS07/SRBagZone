@@ -21,12 +21,14 @@ import Addresses from './pages/Addresses'
 import VerifyEmail from './pages/VerifyEmail'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
+import Contact from './pages/Contact'
 
 import AdminLogin from './pages/admin/Login'
 import AdminProducts from './pages/admin/Products'
 import AdminOrders from './pages/admin/Orders'
 import AdminBrands from './pages/admin/Brands'
 import AdminCategories from './pages/admin/Categories'
+import AdminInquiries from './pages/admin/Inquiries'
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation()
@@ -102,6 +104,7 @@ export default function App() {
           <Route path="/verify-email" element={<PublicLayout><VerifyEmail /></PublicLayout>} />
           <Route path="/forgot-password" element={<PublicLayout><ForgotPassword /></PublicLayout>} />
           <Route path="/reset-password" element={<PublicLayout><ResetPassword /></PublicLayout>} />
+          <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
 
           {/* Admin */}
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -118,6 +121,7 @@ export default function App() {
             <Route path="orders" element={<AdminOrders />} />
             <Route path="brands" element={<AdminBrands />} />
             <Route path="categories" element={<AdminCategories />} />
+            <Route path="inquiries" element={<AdminInquiries />} />
           </Route>
 
           {/* 404 → home */}

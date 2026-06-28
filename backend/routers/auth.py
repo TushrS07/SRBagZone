@@ -103,7 +103,7 @@ async def register(request: Request, response: Response, body: RegisterRequest, 
     verify_link = f"{settings.frontend_url}/verify-email?token={verification_token}"
     send_email(
         to=u.email,
-        subject="Verify your SR Bag Zone account",
+        subject="Verify your SR Bagz Zone account",
         body=f"Hi {u.name},\n\nVerify your email:\n\n  {verify_link}\n",
     )
 
@@ -209,7 +209,7 @@ async def resend_verification(
     await session.commit()
 
     link = f"{settings.frontend_url}/verify-email?token={u.verification_token}"
-    send_email(to=u.email, subject="Verify your SR Bag Zone account",
+    send_email(to=u.email, subject="Verify your SR Bagz Zone account",
                body=f"Hi {u.name},\n\nVerify your email:\n\n  {link}\n")
     return {"message": "Verification email sent"}
 
@@ -232,7 +232,7 @@ async def forgot_password(request: Request, body: ForgotPasswordRequest, session
         link = f"{settings.frontend_url}/reset-password?token={u.reset_token}"
         send_email(
             to=u.email,
-            subject="Reset your SR Bag Zone password",
+            subject="Reset your SR Bagz Zone password",
             body=(
                 f"Hi {u.name},\n\nReset your password (expires in 1 hour):\n\n"
                 f"  {link}\n\nIf you didn't request this, you can ignore this email."

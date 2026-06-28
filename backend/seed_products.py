@@ -50,7 +50,7 @@ async def seed() -> None:
             brand_row = await session.execute(select(Brand).where(Brand.name == "SR"))
             sr = brand_row.scalar_one_or_none()
             if sr is None:
-                sr = Brand(name="SR", description="SR Bag Zone in-house brand", is_active=True)
+                sr = Brand(name="SR", description="SR Bagz Zone in-house brand", is_active=True)
                 session.add(sr)
                 await session.flush()
             brand_id = sr.id

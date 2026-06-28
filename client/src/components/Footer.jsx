@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="footer-inner">
         <div>
           <div className="footer-brand">
-            SR Bag <span>Zone</span>
+            SR Bagz <span>Zone</span>
           </div>
           <p style={{ fontSize: 14, lineHeight: 1.6, margin: 0 }}>
             Thoughtfully designed bags for the modern explorer, student, and professional.
@@ -34,7 +34,7 @@ export default function Footer() {
             <li><a href="#">Shipping</a></li>
             <li><a href="#">Returns</a></li>
             <li><a href="#">Size Guide</a></li>
-            <li><a href="#">Contact</a></li>
+            <li><Link to="/contact">Contact</Link></li>
           </ul>
         </div>
         <div>
@@ -48,7 +48,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="footer-bottom">
-        © {new Date().getFullYear()} SR Bag Zone. All rights reserved.
+        © {new Date().getFullYear()} SR Bagz Zone. All rights reserved.
       </div>
     </footer>
   )

@@ -42,10 +42,10 @@ export default function Header() {
           <span /><span /><span />
         </button>
 
-        <Link to="/" className="brand" aria-label="SR Bag Zone home">
+        <Link to="/" className="brand" aria-label="SR Bagz Zone home">
           <span className="brand-mark">SR</span>
           <span className="brand-name">
-            SR Bag <span>Zone</span>
+            SR Bagz <span>Zone</span>
           </span>
         </Link>
 
@@ -55,6 +55,7 @@ export default function Header() {
           <NavLink to="/?cat=Backpacks">Backpacks</NavLink>
           <NavLink to="/?cat=School Bags">School</NavLink>
           <NavLink to="/?cat=Travel">Travel</NavLink>
+          <NavLink to="/contact">Contact</NavLink>
         </nav>
 
         <div className="header-actions">

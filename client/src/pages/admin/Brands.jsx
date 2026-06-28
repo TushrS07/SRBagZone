@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { api } from '../../api'
 import { FALLBACK_IMG } from '../../utils'
+import { useAdminPage } from '../../components/admin/useAdminPage'
 
 export default function AdminBrands() {
   const [brands, setBrands] = useState([])
@@ -8,6 +9,20 @@ export default function AdminBrands() {
   const [error, setError] = useState('')
   const [editing, setEditing] = useState(null)
   const [busyId, setBusyId] = useState(null)
+
+  const headerRight = useMemo(
+    () => (
+      <button type="button" className="btn btn-primary" onClick={() => setEditing({})}>
+        + Add brand
+      </button>
+    ),
+    [],
+  )
+  useAdminPage({
+    title: 'Brands',
+    subtitle: 'Manufacturers and labels carried in your store.',
+    right: headerRight,
+  })
 
   const load = async () => {
     try {
@@ -40,14 +55,9 @@ export default function AdminBrands() {
 
   return (
     <div>
-      <div className="admin-page-head">
-        <h1>Brands</h1>
-        <button type="button" className="btn btn-primary" onClick={() => setEditing({})}>
-          + Add brand
-        </button>
-      </div>
       {error && <p style={{ color: '#c0392b' }}>⚠ {error}</p>}
       {loading ? <p>Loading…</p> : (
+        <div className="admin-card admin-table-wrap">
         <table className="admin-table">
           <thead>
             <tr>
@@ -86,6 +96,7 @@ export default function AdminBrands() {
             )}
           </tbody>
         </table>
+        </div>
       )}
       {editing && (
         <BrandForm

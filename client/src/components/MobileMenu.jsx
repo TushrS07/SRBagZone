@@ -51,6 +51,7 @@ export default function MobileMenu({ open, onClose }) {
           <Link to="/?cat=School Bags">School Bags</Link>
           <Link to="/?cat=Laptop Bags">Laptop Bags</Link>
           <Link to="/?cat=Travel">Travel</Link>
+          <Link to="/contact">Contact</Link>
         </nav>
 
         <div className="mobile-menu-divider" />

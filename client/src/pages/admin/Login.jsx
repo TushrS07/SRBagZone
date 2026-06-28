@@ -1,12 +1,14 @@
 import { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { api } from '../../api'
 import { setUserAuth, getUser } from '../../userAuth'
 
+// Admins always land on the Products page after sign-in, regardless of where
+// they were bounced from. Simpler mental model than "remember the deep link".
+const ADMIN_HOME = '/admin/products'
+
 export default function AdminLogin() {
   const navigate = useNavigate()
-  const location = useLocation()
-  const redirectTo = location.state?.from?.pathname || '/admin/products'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -14,7 +16,7 @@ export default function AdminLogin() {
 
   const current = getUser()
   if (current?.role === 'admin') {
-    navigate(redirectTo, { replace: true })
+    navigate(ADMIN_HOME, { replace: true })
     return null
   }
 
@@ -30,7 +32,7 @@ export default function AdminLogin() {
         return
       }
       setUserAuth(user, token)
-      navigate(redirectTo, { replace: true })
+      navigate(ADMIN_HOME, { replace: true })
     } catch (err) {
       setError(err.message || 'Login failed')
     } finally {
@@ -41,7 +43,7 @@ export default function AdminLogin() {
   return (
     <div className="admin-login">
       <form onSubmit={submit}>
-        <h1>SR Bag Zone Admin</h1>
+        <h1>SR Bagz Zone Admin</h1>
         <p style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 24 }}>
           Sign in to manage products and orders.
         </p>

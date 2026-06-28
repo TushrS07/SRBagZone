@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { api } from '../../api'
+import { useAdminPage } from '../../components/admin/useAdminPage'
 
 export default function AdminCategories() {
   const [items, setItems] = useState([])
@@ -7,6 +8,20 @@ export default function AdminCategories() {
   const [error, setError] = useState('')
   const [editing, setEditing] = useState(null)
   const [busyId, setBusyId] = useState(null)
+
+  const headerRight = useMemo(
+    () => (
+      <button type="button" className="btn btn-primary" onClick={() => setEditing({})}>
+        + Add category
+      </button>
+    ),
+    [],
+  )
+  useAdminPage({
+    title: 'Categories',
+    subtitle: 'Buckets your customers use to browse the catalog.',
+    right: headerRight,
+  })
 
   const load = async () => {
     try {
@@ -39,14 +54,9 @@ export default function AdminCategories() {
 
   return (
     <div>
-      <div className="admin-page-head">
-        <h1>Categories</h1>
-        <button type="button" className="btn btn-primary" onClick={() => setEditing({})}>
-          + Add category
-        </button>
-      </div>
       {error && <p style={{ color: '#c0392b' }}>⚠ {error}</p>}
       {loading ? <p>Loading…</p> : (
+        <div className="admin-card admin-table-wrap">
         <table className="admin-table">
           <thead>
             <tr>
@@ -77,6 +87,7 @@ export default function AdminCategories() {
             )}
           </tbody>
         </table>
+        </div>
       )}
       {editing && (
         <CategoryForm

@@ -1,32 +1,42 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../api'
-import { useApp } from '../useApp'
+import { readCache, writeCache } from '../cache'
 import { FALLBACK_IMG } from '../utils'
 import ProductCard from '../components/ProductCard'
+
+const PRODUCTS_KEY = 'home:products'
+const CATEGORIES_KEY = 'home:categories'
 
 export default function Home() {
   const [searchParams, setSearchParams] = useSearchParams()
   const initialCat = searchParams.get('cat') || 'All'
   const [filter, setFilter] = useState(initialCat)
-  const [products, setProducts] = useState([])
-  const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(true)
+  // Seed from cache so navigation back to Home shows products instantly.
+  const cachedProducts = readCache(PRODUCTS_KEY)?.data
+  const cachedCategories = readCache(CATEGORIES_KEY)?.data
+  const [products, setProducts] = useState(cachedProducts || [])
+  const [categories, setCategories] = useState(cachedCategories || [])
+  const [loading, setLoading] = useState(!cachedProducts)
   const [error, setError] = useState('')
-  const { setToast } = useApp()
 
   useEffect(() => {
     let cancelled = false
+    // Stale-while-revalidate: render from cache (above), but still fetch fresh
+    // data in the background and silently update if it changed.
     Promise.all([api.listProducts(), api.listCategories()])
       .then(([rows, cats]) => {
         if (cancelled) return
         setProducts(rows)
         setCategories(cats)
+        writeCache(PRODUCTS_KEY, rows)
+        writeCache(CATEGORIES_KEY, cats)
         setError('')
       })
       .catch((err) => {
         if (cancelled) return
-        setError(err.message || 'Could not load products')
+        // If we already have cached data on screen, don't surface a fetch error.
+        if (!cachedProducts) setError(err.message || 'Could not load products')
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -34,6 +44,7 @@ export default function Home() {
     return () => {
       cancelled = true
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const categoryNames = useMemo(() => ['All', ...categories.map((c) => c.name)], [categories])
@@ -52,16 +63,6 @@ export default function Home() {
     () => (filter === 'All' ? products : products.filter((p) => p.category === filter)),
     [filter, products],
   )
-
-  const handleSubscribe = (e) => {
-    e.preventDefault()
-    const form = e.currentTarget
-    const email = form.elements.namedItem('email')?.value?.trim()
-    if (!email) return
-    // Newsletter capture is unwired in the new schema (no inquiries table).
-    setToast(`Thanks! We'll send updates to ${email}.`)
-    form.reset()
-  }
 
   return (
     <main>
@@ -168,26 +169,6 @@ export default function Home() {
         )}
       </section>
 
-      <section className="newsletter">
-        <div className="newsletter-card">
-          <div>
-            <h3>Get 10% off your first order</h3>
-            <p>
-              Join our newsletter for new arrivals, restock alerts, and members-only deals.
-            </p>
-          </div>
-          <form className="subscribe" onSubmit={handleSubscribe}>
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="your@email.com"
-              aria-label="Email address"
-            />
-            <button type="submit">Subscribe</button>
-          </form>
-        </div>
-      </section>
     </main>
   )
 }

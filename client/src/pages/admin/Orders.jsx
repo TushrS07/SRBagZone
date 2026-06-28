@@ -1,6 +1,7 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { api } from '../../api'
 import { formatINR } from '../../utils'
+import { useAdminPage } from '../../components/admin/useAdminPage'
 
 const STATUSES = ['pending', 'acknowledged', 'completed', 'cancelled']
 
@@ -73,6 +74,20 @@ export default function AdminOrders() {
     }
   }
 
+  const headerRight = useMemo(
+    () => (
+      <button type="button" className="btn btn-ghost" onClick={load}>
+        ↻ Refresh
+      </button>
+    ),
+    [],
+  )
+  useAdminPage({
+    title: 'Orders',
+    subtitle: `${orders.length} ${orders.length === 1 ? 'order' : 'orders'} · click # to expand details`,
+    right: headerRight,
+  })
+
   const rejectPayment = async (paymentId) => {
     const remarks = window.prompt('Reason for rejection?') || ''
     setBusyId(paymentId)
@@ -88,12 +103,9 @@ export default function AdminOrders() {
 
   return (
     <div>
-      <div className="admin-page-head">
-        <h1>Orders</h1>
-        <button type="button" onClick={load}>Refresh</button>
-      </div>
       {error && <p style={{ color: '#c0392b' }}>⚠ {error}</p>}
       {loading ? <p>Loading…</p> : (
+        <div className="admin-card admin-table-wrap">
         <table className="admin-table">
           <thead>
             <tr>
@@ -220,6 +232,7 @@ export default function AdminOrders() {
             )}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   )

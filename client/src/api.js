@@ -112,6 +112,15 @@ export const api = {
   listCategories: () => request('/api/categories'),
   listBrands: () => request('/api/brands'),
 
+  // ── Inquiries (public submit + admin manage) ──────────────────────────
+  submitInquiry: (body) => request('/api/inquiries', { method: 'POST', body }),
+  adminListInquiries: () => request('/api/admin/inquiries'),
+  adminUnreadInquiryCount: () => request('/api/admin/inquiries/unread-count'),
+  adminToggleInquiryRead: (id) =>
+    request(`/api/admin/inquiries/${id}/toggle-read`, { method: 'PATCH' }),
+  adminDeleteInquiry: (id) =>
+    request(`/api/admin/inquiries/${id}`, { method: 'DELETE' }),
+
   // ── Addresses ─────────────────────────────────────────────────────────
   listMyAddresses: () => request('/api/addresses/me'),
   createAddress: (body) => request('/api/addresses', { method: 'POST', body }),
