@@ -62,7 +62,6 @@ export default function Footer() {
             <li><a href="#">Our Story</a></li>
             <li><a href="#">Sustainability</a></li>
             <li><a href="#">Careers</a></li>
-            <li><Link to="/admin/login">Admin</Link></li>
           </ul>
         </div>
       </div>
