@@ -156,9 +156,25 @@ export default function Contact() {
           </div>
           <div className="contact-info-card">
             <h3>Visit us</h3>
-            <p>SR Bagz Zone, Jaipur, Rajasthan</p>
+            <address style={{ fontStyle: 'normal' }}>
+              SR Bagz Zone<br />
+              Sangria Road, Hanumangarh Jn.<br />
+              Hanumangarh, Rajasthan 335512
+            </address>
+          </div>
+          <div className="contact-info-card">
+            <h3>Follow us</h3>
+            <p>
+              <a
+                href="https://www.instagram.com/sr_bag_zone_/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                @sr_bag_zone_ on Instagram
+              </a>
+            </p>
             <p style={{ color: 'var(--muted)', fontSize: 13 }}>
-              Showroom open by appointment.
+              New arrivals, behind-the-scenes, and customer photos.
             </p>
           </div>
         </aside>

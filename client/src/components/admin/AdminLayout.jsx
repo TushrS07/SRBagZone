@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../../api'
 import { clearUser } from '../../userAuth'
 import { useUser } from '../../useUser'
 import { AdminUIContext } from './adminUI'
+import { useUnreadInquiries } from './useUnreadInquiries'
 
 const NAV_ITEMS = [
   { icon: '📦', label: 'Products', href: '/admin/products' },
@@ -19,8 +20,8 @@ function Sidebar({ open, onClose, unreadInquiries, onLogout, user }) {
     <aside className={`admin-sidebar ${open ? 'open' : ''}`} aria-label="Admin navigation">
       <div className="admin-sidebar-head">
         <div className="admin-brand">
-          <span className="admin-brand-mark">SR</span>
-          <span>Bagz Zone</span>
+          <img src="/sr-logo.png" alt="" className="admin-brand-mark" />
+          <span>SR Bagz Zone</span>
         </div>
         <button
           type="button"
@@ -70,26 +71,31 @@ export default function AdminLayout() {
   const user = useUser()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [header, setHeader] = useState({ title: 'Admin', subtitle: '', right: null })
-  const [unreadInquiries, setUnreadInquiries] = useState(0)
+  // The active page registers a "bypass cache, refetch" function here. Stored
+  // as a thunk (function-returning-function) so React's setState doesn't try
+  // to invoke our handler with the previous state.
+  const [refreshFn, setRefreshFn] = useState(null)
+  const [refreshing, setRefreshing] = useState(false)
+  // Fetched once on mount (via the hook) and again on demand whenever the
+  // Inquiries page mutates a record. No route-change refetch — that was
+  // hitting the endpoint on every admin navigation.
+  const { count: unreadInquiries, refresh: refreshUnread } = useUnreadInquiries()
 
-  // Refresh the inquiries unread count whenever the admin route changes.
-  // Cheap call; lets the sidebar badge stay in sync after the Inquiries
-  // page marks something read/unread.
-  const refreshUnread = useCallback(async () => {
-    try {
-      const { count } = await api.adminUnreadInquiryCount()
-      setUnreadInquiries(count)
-    } catch {
-      // ignore — non-blocking
-    }
+  const registerRefresh = useCallback((producer) => {
+    // `producer` is a `() => fn | null` thunk; we store the resulting fn
+    // (or null) so the next render can render or hide the button.
+    setRefreshFn(() => producer())
   }, [])
 
-  useEffect(() => {
-    // refreshUnread does setState internally only after the network call
-    // resolves — not synchronous within the effect body.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    refreshUnread()
-  }, [location.pathname, refreshUnread])
+  const handleRefresh = async () => {
+    if (!refreshFn || refreshing) return
+    setRefreshing(true)
+    try {
+      await refreshFn({ force: true })
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   // Close drawer on route change (mobile). This *is* a setState within an
   // effect — but it's a deliberate side effect of navigation, not derived
@@ -105,13 +111,14 @@ export default function AdminLayout() {
     navigate('/admin/login', { replace: true })
   }
 
-  const ctxValue = {
+  const ctxValue = useMemo(() => ({
     setHeader,
     openSidebar: () => setSidebarOpen(true),
     closeSidebar: () => setSidebarOpen(false),
     unreadInquiries,
     bumpInquiryUnread: refreshUnread,
-  }
+    registerRefresh,
+  }), [unreadInquiries, refreshUnread, registerRefresh])
 
   return (
     <AdminUIContext.Provider value={ctxValue}>
@@ -148,9 +155,31 @@ export default function AdminLayout() {
                 {header.subtitle && <p>{header.subtitle}</p>}
               </div>
             </div>
-            {header.right && (
-              <div className="admin-topbar-right">{header.right}</div>
-            )}
+            <div className="admin-topbar-right">
+              {refreshFn && (
+                <button
+                  type="button"
+                  className="admin-refresh-btn"
+                  onClick={handleRefresh}
+                  disabled={refreshing}
+                  title="Refresh (bypass cache)"
+                  aria-label="Refresh data"
+                >
+                  <svg
+                    width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
+                    className={refreshing ? 'spin' : undefined}
+                    aria-hidden="true"
+                  >
+                    <polyline points="23 4 23 10 17 10" />
+                    <polyline points="1 20 1 14 7 14" />
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                  </svg>
+                  <span>{refreshing ? 'Refreshing…' : 'Refresh'}</span>
+                </button>
+              )}
+              {header.right}
+            </div>
           </header>
           <div className="admin-content">
             <Outlet />

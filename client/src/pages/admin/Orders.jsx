@@ -1,7 +1,10 @@
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { api } from '../../api'
 import { formatINR } from '../../utils'
+import { readCache, writeCache } from '../../cache'
 import { useAdminPage } from '../../components/admin/useAdminPage'
+
+const CACHE_KEY = 'admin:orders'
 
 const STATUSES = ['pending', 'acknowledged', 'completed', 'cancelled']
 
@@ -14,34 +17,91 @@ function fmtDate(iso) {
   }
 }
 
+// Toggling a status off removes orders in that bucket from view.
+const DEFAULT_STATUS_FILTER = Object.fromEntries(STATUSES.map((s) => [s, true]))
+
 export default function AdminOrders() {
-  const [orders, setOrders] = useState([])
-  const [loading, setLoading] = useState(true)
+  const cached = readCache(CACHE_KEY)?.data
+  const [orders, setOrders] = useState(cached || [])
+  const [loading, setLoading] = useState(!cached)
   const [error, setError] = useState('')
   const [busyId, setBusyId] = useState(null)
   const [expanded, setExpanded] = useState(null)
 
-  const load = async () => {
+  // Filter state — all client-side over the already-loaded list.
+  const [query, setQuery] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const [statusFilter, setStatusFilter] = useState(DEFAULT_STATUS_FILTER)
+
+  const toggleStatusFilter = (s) =>
+    setStatusFilter((prev) => ({ ...prev, [s]: !prev[s] }))
+
+  const clearFilters = () => {
+    setQuery('')
+    setDateFrom('')
+    setDateTo('')
+    setStatusFilter(DEFAULT_STATUS_FILTER)
+  }
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    // Parse date inputs as local-day boundaries so a single-day range catches
+    // orders placed at any time on that day.
+    const fromMs = dateFrom ? new Date(dateFrom + 'T00:00:00').getTime() : null
+    const toMs = dateTo ? new Date(dateTo + 'T23:59:59.999').getTime() : null
+    return orders.filter((o) => {
+      if (q) {
+        const idStr = String(o.id).toLowerCase()
+        const name = (o.address?.full_name || '').toLowerCase()
+        if (!idStr.includes(q) && !name.includes(q)) return false
+      }
+      if (fromMs != null || toMs != null) {
+        const t = o.created_at ? new Date(o.created_at).getTime() : null
+        if (t == null) return false
+        if (fromMs != null && t < fromMs) return false
+        if (toMs != null && t > toMs) return false
+      }
+      if (!statusFilter[o.order_status]) return false
+      return true
+    })
+  }, [orders, query, dateFrom, dateTo, statusFilter])
+
+  const filtersActive =
+    query.trim() !== '' ||
+    dateFrom !== '' ||
+    dateTo !== '' ||
+    STATUSES.some((s) => !statusFilter[s])
+
+  const load = useCallback(async (opts = {}) => {
+    const { force = false } = opts
+    if (!force) {
+      const fresh = readCache(CACHE_KEY)?.data
+      if (fresh) { setOrders(fresh); setLoading(false) }
+    }
     try {
-      setOrders(await api.adminListOrders())
+      const rows = await api.adminListOrders()
+      setOrders(rows)
+      writeCache(CACHE_KEY, rows)
       setError('')
     } catch (err) {
-      setError(err.message)
+      const hadCached = !!readCache(CACHE_KEY)?.data
+      if (!hadCached) setError(err.message)
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load()
-  }, [])
+  }, [load])
 
   const setStatus = async (id, order_status) => {
     setBusyId(id)
     try {
       await api.adminUpdateOrderStatus(id, order_status)
-      await load()
+      await load({ force: true })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -54,7 +114,7 @@ export default function AdminOrders() {
     setBusyId(id)
     try {
       await api.adminDeleteOrder(id)
-      await load()
+      await load({ force: true })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -66,7 +126,7 @@ export default function AdminOrders() {
     setBusyId(paymentId)
     try {
       await api.adminConfirmPayment(paymentId)
-      await load()
+      await load({ force: true })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -74,18 +134,12 @@ export default function AdminOrders() {
     }
   }
 
-  const headerRight = useMemo(
-    () => (
-      <button type="button" className="btn btn-ghost" onClick={load}>
-        ↻ Refresh
-      </button>
-    ),
-    [],
-  )
   useAdminPage({
     title: 'Orders',
-    subtitle: `${orders.length} ${orders.length === 1 ? 'order' : 'orders'} · click # to expand details`,
-    right: headerRight,
+    subtitle: filtersActive
+      ? `Showing ${filtered.length} of ${orders.length} orders · filters active`
+      : `${orders.length} ${orders.length === 1 ? 'order' : 'orders'} · click # to expand details`,
+    onRefresh: load,
   })
 
   const rejectPayment = async (paymentId) => {
@@ -93,7 +147,7 @@ export default function AdminOrders() {
     setBusyId(paymentId)
     try {
       await api.adminRejectPayment(paymentId, remarks)
-      await load()
+      await load({ force: true })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -104,6 +158,58 @@ export default function AdminOrders() {
   return (
     <div>
       {error && <p style={{ color: '#c0392b' }}>⚠ {error}</p>}
+
+      <div className="orders-filters">
+        <div className="orders-filters-row">
+          <label className="orders-filter-field">
+            <span>Search</span>
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Order # or customer name"
+              autoComplete="off"
+            />
+          </label>
+          <label className="orders-filter-field">
+            <span>From</span>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              max={dateTo || undefined}
+            />
+          </label>
+          <label className="orders-filter-field">
+            <span>To</span>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              min={dateFrom || undefined}
+            />
+          </label>
+          {filtersActive && (
+            <button type="button" className="btn btn-ghost orders-filter-clear" onClick={clearFilters}>
+              Clear
+            </button>
+          )}
+        </div>
+        <div className="orders-status-row">
+          <span className="orders-status-label">Show:</span>
+          {STATUSES.map((s) => (
+            <label key={s} className="orders-status-check">
+              <input
+                type="checkbox"
+                checked={!!statusFilter[s]}
+                onChange={() => toggleStatusFilter(s)}
+              />
+              <span>{s}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
       {loading ? <p>Loading…</p> : (
         <div className="admin-card admin-table-wrap">
         <table className="admin-table">
@@ -119,7 +225,7 @@ export default function AdminOrders() {
             </tr>
           </thead>
           <tbody>
-            {orders.map((o) => (
+            {filtered.map((o) => (
               <Fragment key={o.id}>
                 <tr>
                   <td>
@@ -225,9 +331,11 @@ export default function AdminOrders() {
                 )}
               </Fragment>
             ))}
-            {orders.length === 0 && (
+            {filtered.length === 0 && (
               <tr><td colSpan={7} style={{ textAlign: 'center', color: 'var(--muted)', padding: 24 }}>
-                No orders yet.
+                {orders.length === 0
+                  ? 'No orders yet.'
+                  : 'No orders match the current filters.'}
               </td></tr>
             )}
           </tbody>

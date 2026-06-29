@@ -1,10 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { api } from '../../api'
+import { readCache, writeCache } from '../../cache'
 import { useAdminPage } from '../../components/admin/useAdminPage'
 
+const CACHE_KEY = 'admin:categories'
+
 export default function AdminCategories() {
-  const [items, setItems] = useState([])
-  const [loading, setLoading] = useState(true)
+  const cached = readCache(CACHE_KEY)?.data
+  const [items, setItems] = useState(cached || [])
+  const [loading, setLoading] = useState(!cached)
   const [error, setError] = useState('')
   const [editing, setEditing] = useState(null)
   const [busyId, setBusyId] = useState(null)
@@ -17,34 +21,44 @@ export default function AdminCategories() {
     ),
     [],
   )
+
+  const load = useCallback(async (opts = {}) => {
+    const { force = false } = opts
+    if (!force) {
+      const fresh = readCache(CACHE_KEY)?.data
+      if (fresh) { setItems(fresh); setLoading(false) }
+    }
+    try {
+      const rows = await api.listCategories()
+      setItems(rows)
+      writeCache(CACHE_KEY, rows)
+      setError('')
+    } catch (err) {
+      const hadCached = !!readCache(CACHE_KEY)?.data
+      if (!hadCached) setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
   useAdminPage({
     title: 'Categories',
     subtitle: 'Buckets your customers use to browse the catalog.',
     right: headerRight,
+    onRefresh: load,
   })
-
-  const load = async () => {
-    try {
-      setItems(await api.listCategories())
-      setError('')
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load()
-  }, [])
+  }, [load])
 
   const del = async (id) => {
     if (!window.confirm('Delete this category?')) return
     setBusyId(id)
     try {
       await api.adminDeleteCategory(id)
-      await load()
+      await load({ force: true })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -93,7 +107,7 @@ export default function AdminCategories() {
         <CategoryForm
           category={editing.id ? editing : null}
           onClose={() => setEditing(null)}
-          onSaved={async () => { setEditing(null); await load() }}
+          onSaved={async () => { setEditing(null); await load({ force: true }) }}
         />
       )}
     </div>

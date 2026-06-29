@@ -1,7 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { api } from '../../api'
+import { readCache, writeCache } from '../../cache'
 import { useAdminPage } from '../../components/admin/useAdminPage'
 import { useAdminUI } from '../../components/admin/adminUI'
+
+const CACHE_KEY = 'admin:inquiries'
 
 function formatDate(iso) {
   if (!iso) return ''
@@ -14,8 +17,9 @@ function formatDate(iso) {
 }
 
 export default function AdminInquiries() {
-  const [inquiries, setInquiries] = useState([])
-  const [loading, setLoading] = useState(true)
+  const cached = readCache(CACHE_KEY)?.data
+  const [inquiries, setInquiries] = useState(cached || [])
+  const [loading, setLoading] = useState(!cached)
   const [error, setError] = useState('')
   const [busyId, setBusyId] = useState(null)
   const [filter, setFilter] = useState('all') // all | unread | read
@@ -41,28 +45,36 @@ export default function AdminInquiries() {
     [unreadCount, inquiries.length],
   )
 
+  const load = useCallback(async (opts = {}) => {
+    const { force = false } = opts
+    if (!force) {
+      const fresh = readCache(CACHE_KEY)?.data
+      if (fresh) { setInquiries(fresh); setLoading(false) }
+    }
+    try {
+      const rows = await api.adminListInquiries()
+      setInquiries(rows)
+      writeCache(CACHE_KEY, rows)
+      setError('')
+    } catch (err) {
+      const hadCached = !!readCache(CACHE_KEY)?.data
+      if (!hadCached) setError(err.message || 'Failed to load inquiries.')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
   useAdminPage({
     title: 'Inquiries',
     subtitle: 'Customer messages from the public contact form.',
     right: headerRight,
+    onRefresh: load,
   })
-
-  const load = async () => {
-    try {
-      const rows = await api.adminListInquiries()
-      setInquiries(rows)
-      setError('')
-    } catch (err) {
-      setError(err.message || 'Failed to load inquiries.')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load()
-  }, [])
+  }, [load])
 
   const toggleRead = async (id) => {
     setBusyId(id)

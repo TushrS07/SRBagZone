@@ -9,6 +9,9 @@ export const AdminUIContext = createContext({
   closeSidebar: () => {},
   unreadInquiries: 0,
   bumpInquiryUnread: () => {},
+  // The current admin page registers its bypass-cache fetcher here so the
+  // global topbar Refresh button knows what to call.
+  registerRefresh: () => {},
 })
 
 export function useAdminUI() {

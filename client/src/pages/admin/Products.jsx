@@ -1,12 +1,17 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { api } from '../../api'
 import { FALLBACK_IMG, formatINR } from '../../utils'
+import { readCache, writeCache } from '../../cache'
 import { useAdminPage } from '../../components/admin/useAdminPage'
 import ProductForm from './ProductForm'
 
+const CACHE_KEY = 'admin:products'
+
 export default function AdminProducts() {
-  const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(true)
+  const cached = readCache(CACHE_KEY)?.data
+  const [products, setProducts] = useState(cached || [])
+  // No loader spinner on a re-visit if we already have something to show.
+  const [loading, setLoading] = useState(!cached)
   const [error, setError] = useState('')
   const [editing, setEditing] = useState(null) // null | {} | product
   const [busyId, setBusyId] = useState(null)
@@ -19,36 +24,47 @@ export default function AdminProducts() {
     ),
     [],
   )
+  const load = useCallback(async (opts = {}) => {
+    const { force = false } = opts
+    if (!force) {
+      const fresh = readCache(CACHE_KEY)?.data
+      if (fresh) {
+        setProducts(fresh)
+        setLoading(false)
+        // Still fall through to refetch in the background so cache stays warm.
+      }
+    }
+    try {
+      const rows = await api.adminListProducts()
+      setProducts(rows)
+      writeCache(CACHE_KEY, rows)
+      setError('')
+    } catch (err) {
+      // If we had cached data on screen, swallow the error — UI stays usable.
+      const hadCached = !!readCache(CACHE_KEY)?.data
+      if (!hadCached) setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
   useAdminPage({
     title: 'Products',
     subtitle: 'Manage your catalog — visibility, stock, pricing.',
     right: headerRight,
+    onRefresh: load,
   })
 
-  const load = async () => {
-    try {
-      const rows = await api.adminListProducts()
-      setProducts(rows)
-      setError('')
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
-    // setState only happens after `await api.adminListProducts()` resolves
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load()
-     
-  }, [])
+  }, [load])
 
   const onToggle = async (id) => {
     setBusyId(id)
     try {
       await api.adminToggleProduct(id)
-      await load()
+      await load({ force: true })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -61,7 +77,7 @@ export default function AdminProducts() {
     setBusyId(id)
     try {
       await api.adminDeleteProduct(id)
-      await load()
+      await load({ force: true })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -145,7 +161,7 @@ export default function AdminProducts() {
           onClose={() => setEditing(null)}
           onSaved={async () => {
             setEditing(null)
-            await load()
+            await load({ force: true })
           }}
         />
       )}

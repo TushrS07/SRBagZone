@@ -43,7 +43,7 @@ export default function Header() {
         </button>
 
         <Link to="/" className="brand" aria-label="SR Bagz Zone home">
-          <span className="brand-mark">SR</span>
+          <img src="/sr-logo.png" alt="" className="brand-mark" />
           <span className="brand-name">
             SR Bagz <span>Zone</span>
           </span>
