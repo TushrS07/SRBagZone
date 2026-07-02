@@ -139,14 +139,12 @@ export default function Contact() {
           <div className="bg-surface border border-line rounded-md px-[22px] py-5 shadow-sm">
             <h3 className="font-serif text-[18px] font-medium m-0 mb-1.5 tracking-[-0.2px]">Wholesale</h3>
             <p className="text-sm text-ink mt-1">
-              <a href="mailto:wholesale@srbagzzone.com" className="hover:text-accent-deep transition-colors">wholesale@srbagzzone.com</a>
+              <a href="mailto:srbagzzone@gmail.com" className="hover:text-accent-deep transition-colors">srbagzzone@gmail.com</a>
             </p>
-            <p className="text-muted text-[13px] mt-0.5">Minimum order 50 units. Custom branding available.</p>
           </div>
           <div className="bg-surface border border-line rounded-md px-[22px] py-5 shadow-sm">
             <h3 className="font-serif text-[18px] font-medium m-0 mb-1.5 tracking-[-0.2px]">Visit us</h3>
-            <p className="text-sm text-ink mt-1">SR Bagz Zone, Jaipur, Rajasthan</p>
-            <p className="text-muted text-[13px] mt-0.5">Showroom open by appointment.</p>
+            <p className="text-sm text-ink mt-1">SR Bagz Zone, Sangria, Hanumangarh, Rajasthan</p>
           </div>
         </aside>
 

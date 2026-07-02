@@ -99,7 +99,8 @@ export default function ProductDetail() {
           )}
           {typeof product.stock === 'number' && (
             <p className="text-accent-deep font-semibold text-sm">
-              {product.stock > 0 ? `In stock (${product.stock} left)` : 'Out of stock'}
+              {product.stock < 10 ? `(${product.stock} left)` : ''}
+              {product.stock === 0 ? 'Out of stock' : ''}
             </p>
           )}
           <div className="flex gap-3 mt-6">
@@ -113,12 +114,13 @@ export default function ProductDetail() {
                   −
                 </button>
                 <span>
-                  {inCart.qty} <span className="qty-suffix">in cart</span>
+                  {inCart.qty} 
                 </span>
                 <button
                   type="button"
                   onClick={() => changeQty(product.id, 1)}
                   aria-label="Increase quantity"
+                  disabled={typeof product.stock === 'number' && inCart.qty >= product.stock}
                 >
                   +
                 </button>

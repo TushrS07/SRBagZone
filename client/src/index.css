@@ -168,7 +168,16 @@ body {
   margin-top: 0;
   background: var(--ink);
   border-color: var(--ink);
-  padding: 0 4px;
+  padding: 0;
+}
+.qty button:disabled,
+.qty.product-detail-qty button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.qty button:disabled:hover,
+.qty.product-detail-qty button:disabled:hover {
+  background: transparent;
 }
 .qty.product-detail-qty button {
   width: 36px;

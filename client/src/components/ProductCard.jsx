@@ -54,7 +54,7 @@ export default function ProductCard({ product }) {
           <Stars rating={product.rating} />
           <span>({product.reviews})</span>
         </div>
-        <div className="mt-auto flex items-center justify-between gap-[10px] pt-[10px] max-sm:flex-col max-sm:items-stretch max-sm:gap-2">
+        <div className="mt-auto flex items-center justify-between gap-[10px] pt-[10px] max-sm:flex-col max-sm:items-start max-sm:gap-[10px]">
           <div className="flex items-baseline gap-2">
             <span className="text-xl font-bold text-ink max-sm:text-base">{formatINR(product.price)}</span>
             {product.was && <span className="text-[13px] text-muted line-through max-sm:text-xs">{formatINR(product.was)}</span>}
@@ -75,7 +75,8 @@ export default function ProductCard({ product }) {
                 type="button"
                 onClick={() => changeQty(product.id, 1)}
                 aria-label="Increase quantity"
-                className="w-[30px] h-8 text-base text-accent-deep font-bold hover:bg-accent hover:text-[#ffffff] transition-colors duration-[180ms] max-sm:w-[38px] max-sm:h-[38px] max-sm:text-[17px]"
+                disabled={typeof product.stock === 'number' && inCart.qty >= product.stock}
+                className="w-[30px] h-8 text-base text-accent-deep font-bold hover:bg-accent hover:text-[#ffffff] transition-colors duration-[180ms] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-accent-deep max-sm:w-[38px] max-sm:h-[38px] max-sm:text-[17px]"
               >
                 +
               </button>
@@ -83,7 +84,7 @@ export default function ProductCard({ product }) {
           ) : (
             <button
               type="button"
-              className="py-[9px] px-4 bg-ink text-[#ffffff] rounded-full text-[13px] font-semibold transition-[background,transform] duration-200 inline-flex items-center gap-[6px] hover:bg-accent hover:-translate-y-px max-sm:py-3 max-sm:px-[14px] max-sm:text-[12.5px] max-sm:justify-center max-sm:min-h-11"
+              className="py-[9px] px-4 bg-ink text-[#ffffff] rounded-full text-[13px] font-semibold transition-[background,transform] duration-200 inline-flex items-center gap-[6px] hover:bg-accent hover:-translate-y-px max-sm:py-[10px] max-sm:px-5 max-sm:text-[12.5px]"
               onClick={() => addToCart(product)}
             >
               + Add

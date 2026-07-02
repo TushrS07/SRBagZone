@@ -45,10 +45,16 @@ export function AppProvider({ children }) {
   }, [cartOpen])
 
   const addToCart = (product) => {
+    const stock = typeof product.stock === 'number' ? product.stock : Infinity
+    if (stock < 1) {
+      setToast(`${product.name} is out of stock`)
+      return
+    }
     setCart((prev) => {
       const existing = prev.find((i) => i.id === product.id)
       if (existing) {
-        return prev.map((i) => (i.id === product.id ? { ...i, qty: i.qty + 1 } : i))
+        const nextQty = Math.min(existing.qty + 1, stock)
+        return prev.map((i) => (i.id === product.id ? { ...i, qty: nextQty } : i))
       }
       return [...prev, { ...product, qty: 1 }]
     })
@@ -59,7 +65,11 @@ export function AppProvider({ children }) {
   const changeQty = (id, delta) => {
     setCart((prev) =>
       prev
-        .map((i) => (i.id === id ? { ...i, qty: i.qty + delta } : i))
+        .map((i) => {
+          if (i.id !== id) return i
+          const stock = typeof i.stock === 'number' ? i.stock : Infinity
+          return { ...i, qty: Math.min(i.qty + delta, stock) }
+        })
         .filter((i) => i.qty > 0),
     )
   }

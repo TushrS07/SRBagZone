@@ -47,10 +47,10 @@ export default function Header() {
 
         <Link
           to="/"
-          className="flex items-center gap-[10px] font-serif text-[26px] tracking-[0.5px] font-semibold text-ink max-sm:text-[18px] max-sm:flex-1 max-sm:min-w-0"
+          className="flex items-center gap-[10px] font-serif text-[26px] tracking-[0.5px] font-semibold text-ink whitespace-nowrap shrink-0 max-sm:text-[18px]"
           aria-label="SR Bagz Zone home"
         >
-          <span className="w-9 h-9 rounded-[10px] bg-[linear-gradient(135deg,var(--accent),var(--accent-deep))] text-[#ffffff] grid place-items-center font-serif font-bold text-[18px] max-sm:w-[30px] max-sm:h-[30px] max-sm:text-[14px]">
+          <span className="w-9 h-9 rounded-[10px] bg-[linear-gradient(135deg,var(--accent),var(--accent-deep))] text-[#ffffff] grid place-items-center font-serif font-bold text-[18px] shrink-0 max-sm:w-[30px] max-sm:h-[30px] max-sm:text-[14px]">
             SR
           </span>
           <span className="max-sm:text-[17px]">
@@ -113,12 +113,12 @@ export default function Header() {
           </NavLink>
         </nav>
 
-        <div className="flex items-center gap-[14px] max-sm:gap-2">
+        <div className="flex items-center gap-[14px] max-sm:gap-2 max-sm:flex-1 max-sm:min-w-0 max-sm:justify-end">
           {user ? (
-            <div className="relative">
+            <div className="relative max-sm:min-w-0">
               <button
                 type="button"
-                className="px-[14px] py-2 bg-bg border border-line rounded-full text-[14px] font-semibold text-ink cursor-pointer hover:bg-surface max-sm:px-3 max-sm:text-[13px] max-sm:min-h-[40px] max-sm:max-w-[130px] max-sm:overflow-hidden max-sm:text-ellipsis max-sm:whitespace-nowrap"
+                className="px-[14px] py-2 bg-bg border border-line rounded-full text-[14px] font-semibold text-ink cursor-pointer hover:bg-surface max-sm:px-3 max-sm:text-[13px] max-sm:min-h-[40px] max-sm:min-w-0 max-sm:max-w-[130px] max-sm:overflow-hidden max-sm:text-ellipsis max-sm:whitespace-nowrap"
                 onClick={() => setMenuOpen((o) => !o)}
                 aria-haspopup="true"
                 aria-expanded={menuOpen}
@@ -189,7 +189,7 @@ export default function Header() {
           )}
           <button
             type="button"
-            className="inline-flex items-center gap-[10px] px-[18px] py-[10px] rounded-full bg-ink text-[#ffffff] text-[14px] font-semibold transition-all duration-[180ms] hover:bg-accent-deep hover:-translate-y-px max-sm:px-3 max-sm:gap-[6px] max-sm:text-[13px] max-sm:min-h-[40px]"
+            className="inline-flex items-center gap-[10px] px-[18px] py-[10px] rounded-full bg-ink text-[#ffffff] text-[14px] font-semibold transition-all duration-[180ms] hover:bg-accent-deep hover:-translate-y-px shrink-0 max-sm:px-3 max-sm:gap-[6px] max-sm:text-[13px] max-sm:min-h-[40px]"
             onClick={() => setCartOpen(true)}
             aria-label={`Open cart with ${cartCount} items`}
           >
