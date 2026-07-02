@@ -11,12 +11,8 @@ const REQUIREMENT_OPTIONS = [
 ]
 
 const PHONE_RE = /^[6-9]\d{9}$/
-// Same RFC-ish shape the browser uses for type="email" — covers the common
-// cases without dragging in a library.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-// Per-field validators — return an error string or '' when valid.
-// Centralised so onChange, onBlur, and submit all stay in sync.
 function validateField(name, value) {
   switch (name) {
     case 'name':
@@ -31,7 +27,7 @@ function validateField(name, value) {
       return ''
     }
     case 'email':
-      if (!value.trim()) return '' // optional
+      if (!value.trim()) return ''
       return EMAIL_RE.test(value.trim()) ? '' : 'Enter a valid email like name@example.com.'
     case 'message':
       return value.trim() ? '' : 'Please share a few details.'
@@ -39,6 +35,9 @@ function validateField(name, value) {
       return ''
   }
 }
+
+const inputCls = "px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none transition-colors focus:border-accent focus:shadow-[0_0_0_3px_rgba(184,114,43,0.12)] w-full"
+const labelCls = "flex flex-col gap-1.5 text-[13px] text-ink-soft"
 
 export default function Contact() {
   const { setToast } = useApp()
@@ -50,8 +49,6 @@ export default function Contact() {
     message: '',
   })
   const [errors, setErrors] = useState({})
-  // Track which fields the user has touched (blurred). We don't surface
-  // "please tell us your name" before they've even left the field.
   const [touched, setTouched] = useState({})
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -63,12 +60,8 @@ export default function Contact() {
 
   const update = (k) => (e) => {
     let val = e.target.value
-    // Strip non-digits live in the phone field so the user can't even type
-    // letters or symbols. Keeps the input self-correcting.
     if (k === 'phone') val = val.replace(/\D/g, '').slice(0, 10)
     setForm((f) => ({ ...f, [k]: val }))
-    // Once the field has been touched (blurred once), keep validation live so
-    // the error message disappears as soon as the input becomes valid.
     if (touched[k]) setFieldError(k, val)
   }
 
@@ -92,7 +85,6 @@ export default function Contact() {
     const v = validateAll()
     if (Object.keys(v).length) {
       setErrors(v)
-      // Mark every invalid field as touched so the errors show on submit too.
       setTouched((t) => ({ ...t, ...Object.fromEntries(Object.keys(v).map((k) => [k, true])) }))
       return
     }
@@ -123,82 +115,66 @@ export default function Contact() {
   }
 
   return (
-    <main className="contact-page">
-      <section className="contact-hero">
+    <main className="max-w-[1140px] mx-auto pt-10 px-8 pb-20 max-tablet:pt-9 max-tablet:px-[18px] max-tablet:pb-[60px]">
+      <section className="max-w-[720px] mb-10">
         <span className="hero-eyebrow">Get in touch</span>
-        <h1>How can we help?</h1>
-        <p>
+        <h1 className="font-serif text-[clamp(34px,5vw,50px)] leading-[1.1] mt-2 mb-3 tracking-[-0.5px]">How can we help?</h1>
+        <p className="text-ink-soft leading-[1.6]">
           Questions about a product, a bulk order for your school or business, or
           help with a recent purchase — drop us a note and we'll respond within
           one working day.
         </p>
       </section>
 
-      <section className="contact-grid">
-        <aside className="contact-info">
-          <div className="contact-info-card">
-            <h3>Customer support</h3>
-            <p>
-              <a href="tel:+918890308955">+91 88903 08955</a>
+      <section className="grid grid-cols-1 gap-6 items-start tablet:grid-cols-[320px_1fr] tablet:gap-8">
+        {/* Left — contact info cards */}
+        <aside className="flex flex-col gap-3.5">
+          <div className="bg-surface border border-line rounded-md px-[22px] py-5 shadow-sm">
+            <h3 className="font-serif text-[18px] font-medium m-0 mb-1.5 tracking-[-0.2px]">Customer support</h3>
+            <p className="text-sm text-ink mt-1">
+              <a href="tel:+918890308955" className="hover:text-accent-deep transition-colors">+91 88903 08955</a>
             </p>
-            <p style={{ color: 'var(--muted)', fontSize: 13 }}>
-              Mon – Sat, 10am to 7pm IST
-            </p>
+            <p className="text-muted text-[13px] mt-0.5">Mon – Sat, 10am to 7pm IST</p>
           </div>
-          <div className="contact-info-card">
-            <h3>Wholesale</h3>
-            <p>
-              <a href="mailto:wholesale@srbagzzone.com">wholesale@srbagzzone.com</a>
+          <div className="bg-surface border border-line rounded-md px-[22px] py-5 shadow-sm">
+            <h3 className="font-serif text-[18px] font-medium m-0 mb-1.5 tracking-[-0.2px]">Wholesale</h3>
+            <p className="text-sm text-ink mt-1">
+              <a href="mailto:wholesale@srbagzzone.com" className="hover:text-accent-deep transition-colors">wholesale@srbagzzone.com</a>
             </p>
-            <p style={{ color: 'var(--muted)', fontSize: 13 }}>
-              Minimum order 50 units. Custom branding available.
-            </p>
+            <p className="text-muted text-[13px] mt-0.5">Minimum order 50 units. Custom branding available.</p>
           </div>
-          <div className="contact-info-card">
-            <h3>Visit us</h3>
-            <address style={{ fontStyle: 'normal' }}>
-              SR Bagz Zone<br />
-              Sangria Road, Hanumangarh Jn.<br />
-              Hanumangarh, Rajasthan 335512
-            </address>
-          </div>
-          <div className="contact-info-card">
-            <h3>Follow us</h3>
-            <p>
-              <a
-                href="https://www.instagram.com/sr_bag_zone_/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                @sr_bag_zone_ on Instagram
-              </a>
-            </p>
-            <p style={{ color: 'var(--muted)', fontSize: 13 }}>
-              New arrivals, behind-the-scenes, and customer photos.
-            </p>
+          <div className="bg-surface border border-line rounded-md px-[22px] py-5 shadow-sm">
+            <h3 className="font-serif text-[18px] font-medium m-0 mb-1.5 tracking-[-0.2px]">Visit us</h3>
+            <p className="text-sm text-ink mt-1">SR Bagz Zone, Jaipur, Rajasthan</p>
+            <p className="text-muted text-[13px] mt-0.5">Showroom open by appointment.</p>
           </div>
         </aside>
 
-        <div className="contact-form-card">
+        {/* Right — inquiry form */}
+        <div className="bg-surface border border-line rounded-lg shadow-md px-8 py-9 max-tablet:px-[22px] max-tablet:py-[26px]">
           {submitted ? (
-            <div className="contact-success">
-              <div className="contact-success-icon">✓</div>
-              <h2>Thanks for reaching out</h2>
-              <p>
-                Your inquiry is in. Someone from our team will follow up at the
-                number you shared.
+            <div className="flex flex-col items-center text-center py-8 gap-4">
+              <div className="w-16 h-16 rounded-full bg-accent-soft text-accent-deep grid place-items-center text-[32px] font-bold">✓</div>
+              <h2 className="font-serif text-[26px] font-medium m-0">Thanks for reaching out</h2>
+              <p className="text-ink-soft leading-[1.6] max-w-[380px]">
+                Your inquiry is in. Someone from our team will follow up at the number you shared.
               </p>
-              <button type="button" className="btn btn-ghost" onClick={sendAnother}>
+              <button
+                type="button"
+                className="mt-2 px-[22px] py-[11px] rounded-full border border-ink text-ink font-semibold text-sm transition-colors hover:bg-ink hover:text-[#ffffff]"
+                onClick={sendAnother}
+              >
                 Send another inquiry
               </button>
             </div>
           ) : (
-            <form className="contact-form" onSubmit={submit} noValidate>
-              <h2>Send us an inquiry</h2>
+            <form className="flex flex-col gap-4" onSubmit={submit} noValidate>
+              <h2 className="font-serif text-[24px] font-medium m-0 mb-1">Send us an inquiry</h2>
               {serverError && (
-                <p className="contact-server-error">⚠ {serverError}</p>
+                <p className="text-danger text-[13px] bg-[#fff0f0] border border-[#fcc] rounded-lg px-4 py-3">⚠ {serverError}</p>
               )}
-              <label>
+
+              <label className={labelCls}>
                 <span>Full name</span>
                 <input
                   type="text"
@@ -209,12 +185,13 @@ export default function Contact() {
                   autoComplete="name"
                   disabled={submitting}
                   aria-invalid={!!errors.name}
+                  className={inputCls}
                 />
-                {errors.name && <small className="field-error">{errors.name}</small>}
+                {errors.name && <small className="text-danger text-xs font-medium">{errors.name}</small>}
               </label>
 
-              <div className="contact-row">
-                <label>
+              <div className="grid grid-cols-2 gap-3.5 max-tablet:grid-cols-1">
+                <label className={labelCls}>
                   <span>Phone</span>
                   <input
                     type="tel"
@@ -228,12 +205,13 @@ export default function Contact() {
                     autoComplete="tel"
                     disabled={submitting}
                     aria-invalid={!!errors.phone}
+                    className={inputCls}
                   />
-                  {errors.phone && <small className="field-error">{errors.phone}</small>}
+                  {errors.phone && <small className="text-danger text-xs font-medium">{errors.phone}</small>}
                 </label>
 
-                <label>
-                  <span>Email <span className="optional">(optional)</span></span>
+                <label className={labelCls}>
+                  <span>Email <span className="text-muted font-normal">(optional)</span></span>
                   <input
                     type="email"
                     value={form.email}
@@ -243,17 +221,19 @@ export default function Contact() {
                     autoComplete="email"
                     disabled={submitting}
                     aria-invalid={!!errors.email}
+                    className={inputCls}
                   />
-                  {errors.email && <small className="field-error">{errors.email}</small>}
+                  {errors.email && <small className="text-danger text-xs font-medium">{errors.email}</small>}
                 </label>
               </div>
 
-              <label>
+              <label className={labelCls}>
                 <span>Your requirement</span>
                 <select
                   value={form.requirement}
                   onChange={update('requirement')}
                   disabled={submitting}
+                  className={inputCls}
                 >
                   {REQUIREMENT_OPTIONS.map((r) => (
                     <option key={r} value={r}>{r}</option>
@@ -261,7 +241,7 @@ export default function Contact() {
                 </select>
               </label>
 
-              <label>
+              <label className={labelCls}>
                 <span>Message</span>
                 <textarea
                   rows={5}
@@ -271,11 +251,16 @@ export default function Contact() {
                   placeholder="Tell us about your requirement — quantity, deadline, customization, etc."
                   disabled={submitting}
                   aria-invalid={!!errors.message}
+                  className={`${inputCls} resize-y`}
                 />
-                {errors.message && <small className="field-error">{errors.message}</small>}
+                {errors.message && <small className="text-danger text-xs font-medium">{errors.message}</small>}
               </label>
 
-              <button type="submit" className="checkout-btn" disabled={submitting}>
+              <button
+                type="submit"
+                className="p-4 bg-ink text-[#ffffff] rounded-full font-semibold text-[15px] transition-colors hover:bg-accent-deep disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={submitting}
+              >
                 {submitting ? 'Sending…' : 'Send inquiry'}
               </button>
             </form>

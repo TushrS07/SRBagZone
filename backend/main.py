@@ -71,11 +71,9 @@ app.include_router(inquiries.admin_router)
 async def health():
     uptime = (datetime.now(timezone.utc) - _start_time).total_seconds()
     db_status = "ok"
-    db_name = None
     try:
         async with engine.connect() as conn:
-            result = await conn.execute(text("SELECT current_database()"))
-            db_name = result.scalar()
+            await conn.execute(text("SELECT 1"))
     except Exception:
         db_status = "unreachable"
     return {
@@ -83,7 +81,6 @@ async def health():
         "service": "srbagzone-api",
         "version": "2.0.0",
         "database": db_status,
-        "database_name": db_name,
         "uptime_seconds": round(uptime, 2),
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }

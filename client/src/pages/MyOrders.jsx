@@ -45,28 +45,32 @@ export default function MyOrders() {
     }
   }, [])
 
-  if (loading) return <main className="section"><p style={{ color: 'var(--muted)' }}>Loading…</p></main>
+  if (loading) return <main className="max-w-[1240px] mx-auto mt-[70px] px-7 max-sm:px-4"><p className="text-muted">Loading…</p></main>
 
   return (
-    <main className="section">
-      <h1 className="section-title" style={{ marginBottom: 24 }}>My orders</h1>
-      {error && <p style={{ color: '#c0392b' }}>⚠ {error}</p>}
+    <main className="max-w-[1240px] mx-auto mt-[70px] px-7 max-sm:px-4">
+      <h1 className="font-serif text-[42px] font-medium m-0 tracking-[-0.5px] mb-6">My orders</h1>
+      {error && <p className="text-danger">⚠ {error}</p>}
       {orders.length === 0 ? (
-        <div style={{ padding: '40px 0', textAlign: 'center', color: 'var(--muted)' }}>
-          <p style={{ fontSize: 16 }}>You haven't placed any orders yet.</p>
-          <Link to="/" className="btn btn-primary" style={{ marginTop: 16, display: 'inline-block' }}>
+        <div className="py-10 text-center text-muted">
+          <p className="text-base mb-4">You haven't placed any orders yet.</p>
+          <Link to="/" className="inline-block px-[26px] py-[14px] rounded-full bg-accent text-[#ffffff] font-semibold text-[14.5px] tracking-[0.3px]">
             Start shopping
           </Link>
         </div>
       ) : (
-        <div className="orders-list">
+        <div className="flex flex-col gap-3">
           {orders.map((o) => (
-            <Link key={o.id} to={`/order/${o.id}`} className="order-row">
+            <Link
+              key={o.id}
+              to={`/order/${o.id}`}
+              className="grid grid-cols-[1.2fr_1.6fr_1fr_0.7fr] gap-4 items-center px-[22px] py-5 bg-surface border border-line rounded-md transition-colors hover:border-accent hover:shadow-sm max-sm:grid-cols-2 max-sm:gap-2"
+            >
               <div>
-                <div className="order-row-num">Order #{o.id}</div>
-                <div className="order-row-date">{fmtDate(o.created_at)}</div>
+                <div className="font-semibold text-ink text-[15px]">Order #{o.id}</div>
+                <div className="text-xs text-muted mt-0.5">{fmtDate(o.created_at)}</div>
               </div>
-              <div className="order-row-items">
+              <div className="flex flex-col gap-0.5 text-[13px] text-ink-soft">
                 {(o.items || []).slice(0, 3).map((i) => (
                   <span key={i.id}>
                     {i.quantity} × {i.product_name}
@@ -74,17 +78,17 @@ export default function MyOrders() {
                 ))}
                 {(o.items?.length || 0) > 3 && <span>+{o.items.length - 3} more</span>}
               </div>
-              <div className="order-row-status">
-                <span className={`pill ${o.order_status === 'completed' ? 'pill-on' : 'pill-off'}`}>
+              <div className="flex flex-col items-start">
+                <span className={`inline-block px-2.5 py-1 text-xs rounded-full font-semibold ${o.order_status === 'completed' ? 'bg-[#e6f3e9] text-[#2f7a3a]' : 'bg-[#efe6dd] text-muted'}`}>
                   {STATUS_LABELS[o.order_status] || o.order_status}
                 </span>
                 {o.payment_status && (
-                  <span style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
+                  <span className="text-xs text-muted mt-1">
                     Payment: {o.payment_status}
                   </span>
                 )}
               </div>
-              <div className="order-row-total">{formatINR(o.total_amount)}</div>
+              <div className="font-bold text-base text-ink text-right">{formatINR(o.total_amount)}</div>
             </Link>
           ))}
         </div>

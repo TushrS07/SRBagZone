@@ -17,46 +17,55 @@ const NAV_ITEMS = [
 function Sidebar({ open, onClose, unreadInquiries, onLogout, user }) {
   const initial = (user?.name?.trim()?.[0] || 'A').toUpperCase()
   return (
-    <aside className={`admin-sidebar ${open ? 'open' : ''}`} aria-label="Admin navigation">
-      <div className="admin-sidebar-head">
-        <div className="admin-brand">
-          <img src="/sr-logo.png" alt="" className="admin-brand-mark" />
-          <span>SR Bagz Zone</span>
+    <aside
+      className={`w-60 bg-ink text-white flex flex-col fixed top-0 left-0 bottom-0 z-30 transition-transform duration-[250ms] max-[960px]:shadow-lg ${open ? 'translate-x-0' : 'max-[960px]:-translate-x-full'}`}
+      aria-label="Admin navigation"
+    >
+      <div className="px-5 py-[22px] pb-[18px] border-b border-white/[0.08] flex items-center justify-between gap-2.5">
+        <div className="font-serif text-[19px] tracking-[-0.3px] flex items-center gap-2.5">
+          <span className="inline-grid place-items-center w-8 h-8 rounded-[9px] bg-[linear-gradient(135deg,var(--color-accent),var(--color-accent-deep))] text-white font-sans font-bold text-[13px] tracking-[0.5px]">SR</span>
+          <span>Bagz Zone</span>
         </div>
         <button
           type="button"
-          className="admin-sidebar-close"
+          className="hidden max-[960px]:inline-flex bg-transparent border-none text-white/60 text-[22px] leading-none px-2 py-1 cursor-pointer hover:text-white"
           onClick={onClose}
           aria-label="Close menu"
         >
           ✕
         </button>
       </div>
-      <nav className="admin-nav">
+      <nav className="flex flex-col gap-0.5 p-3 py-3.5 flex-1 overflow-y-auto">
         {NAV_ITEMS.map((item) => (
           <NavLink
             key={item.href}
             to={item.href}
             onClick={onClose}
-            className={({ isActive }) => (isActive ? 'active' : undefined)}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium transition-colors hover:text-white hover:bg-white/[0.06] ${isActive ? 'bg-accent text-white' : 'text-white/[0.68]'}`
+            }
           >
-            <span className="admin-nav-icon" aria-hidden="true">{item.icon}</span>
+            <span className="text-base w-5 inline-grid place-items-center shrink-0" aria-hidden="true">{item.icon}</span>
             <span>{item.label}</span>
             {item.badgeKey === 'inquiries' && unreadInquiries > 0 && (
-              <span className="admin-nav-badge">{unreadInquiries}</span>
+              <span className="ml-auto bg-accent text-white text-[11px] font-bold px-[7px] py-[2px] rounded-full min-w-[20px] text-center">{unreadInquiries}</span>
             )}
           </NavLink>
         ))}
       </nav>
-      <div className="admin-sidebar-foot">
-        <div className="admin-user-pill">
-          <div className="admin-user-avatar">{initial}</div>
-          <div className="admin-user-meta">
-            <strong>{user?.name || 'Admin'}</strong>
-            <span>{user?.email || 'Administrator'}</span>
+      <div className="px-3 py-3.5 pb-4 border-t border-white/[0.08] flex flex-col gap-2">
+        <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-[10px] bg-white/[0.04]">
+          <div className="w-8 h-8 rounded-full bg-accent-soft text-accent-deep grid place-items-center font-bold text-[13px] shrink-0">{initial}</div>
+          <div className="min-w-0 flex flex-col leading-[1.2]">
+            <strong className="text-[13px] text-white overflow-hidden text-ellipsis whitespace-nowrap">{user?.name || 'Admin'}</strong>
+            <span className="text-[11px] text-white/50">{user?.email || 'Administrator'}</span>
           </div>
         </div>
-        <button type="button" className="admin-logout" onClick={onLogout}>
+        <button
+          type="button"
+          className="px-3 py-2.5 rounded-[10px] bg-transparent text-[rgba(255,195,187,0.92)] text-[13px] font-medium text-left flex items-center gap-2.5 border-none cursor-pointer hover:bg-[rgba(255,90,70,0.12)] hover:text-[#ffb1a6]"
+          onClick={onLogout}
+        >
           <span aria-hidden="true">⎋</span>
           <span>Sign out</span>
         </button>
@@ -122,7 +131,7 @@ export default function AdminLayout() {
 
   return (
     <AdminUIContext.Provider value={ctxValue}>
-      <div className="admin-shell">
+      <div className="flex min-h-screen bg-bg">
         <Sidebar
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
@@ -131,16 +140,16 @@ export default function AdminLayout() {
           user={user}
         />
         <div
-          className={`admin-sidebar-overlay ${sidebarOpen ? 'open' : ''}`}
+          className={`fixed inset-0 bg-ink/50 backdrop-blur-sm z-[25] transition-opacity ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setSidebarOpen(false)}
           aria-hidden="true"
         />
-        <div className="admin-main">
-          <header className="admin-topbar">
-            <div className="admin-topbar-left">
+        <div className="flex-1 ml-60 flex flex-col min-w-0 max-[960px]:ml-0">
+          <header className="sticky top-0 z-20 bg-white/[0.92] backdrop-blur-[8px] border-b border-line px-8 py-3.5 flex items-center justify-between gap-3.5 min-h-16 max-[960px]:px-4 max-[960px]:min-h-[60px]">
+            <div className="flex items-center gap-3 min-w-0">
               <button
                 type="button"
-                className="admin-hamburger"
+                className="hidden max-[960px]:inline-flex border border-line rounded-[10px] w-[38px] h-[38px] items-center justify-center text-ink-soft hover:text-ink hover:bg-bg"
                 onClick={() => setSidebarOpen(true)}
                 aria-label="Open menu"
               >
@@ -150,38 +159,16 @@ export default function AdminLayout() {
                   <line x1="3" y1="18" x2="21" y2="18" />
                 </svg>
               </button>
-              <div className="admin-topbar-titles">
-                <h1>{header.title}</h1>
-                {header.subtitle && <p>{header.subtitle}</p>}
+              <div className="min-w-0 flex flex-col gap-0.5">
+                <h1 className="font-serif text-[22px] font-semibold tracking-[-0.3px] m-0 text-ink overflow-hidden text-ellipsis whitespace-nowrap max-[960px]:text-[18px]">{header.title}</h1>
+                {header.subtitle && <p className="text-[12.5px] text-muted m-0 max-[960px]:hidden">{header.subtitle}</p>}
               </div>
             </div>
-            <div className="admin-topbar-right">
-              {refreshFn && (
-                <button
-                  type="button"
-                  className="admin-refresh-btn"
-                  onClick={handleRefresh}
-                  disabled={refreshing}
-                  title="Refresh (bypass cache)"
-                  aria-label="Refresh data"
-                >
-                  <svg
-                    width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
-                    className={refreshing ? 'spin' : undefined}
-                    aria-hidden="true"
-                  >
-                    <polyline points="23 4 23 10 17 10" />
-                    <polyline points="1 20 1 14 7 14" />
-                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                  </svg>
-                  <span>{refreshing ? 'Refreshing…' : 'Refresh'}</span>
-                </button>
-              )}
-              {header.right}
-            </div>
+            {header.right && (
+              <div className="flex items-center gap-2.5 shrink-0">{header.right}</div>
+            )}
           </header>
-          <div className="admin-content">
+          <div className="p-8 pb-12 flex-1 max-[960px]:p-5 max-[960px]:pb-10">
             <Outlet />
           </div>
         </div>

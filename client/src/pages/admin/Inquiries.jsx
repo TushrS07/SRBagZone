@@ -38,7 +38,7 @@ export default function AdminInquiries() {
 
   const headerRight = useMemo(
     () => (
-      <span className="admin-stat-pill">
+      <span className="inline-flex items-center gap-2 px-3.5 py-[7px] bg-accent-soft text-accent-deep rounded-full text-[13px] font-semibold">
         {unreadCount} unread · {inquiries.length} total
       </span>
     ),
@@ -104,14 +104,14 @@ export default function AdminInquiries() {
   }
 
   if (loading) {
-    return <p style={{ color: 'var(--muted)' }}>Loading inquiries…</p>
+    return <p className="text-muted">Loading inquiries…</p>
   }
 
   return (
     <div>
-      {error && <p style={{ color: '#c0392b', marginBottom: 12 }}>⚠ {error}</p>}
+      {error && <p className="text-danger mb-3">⚠ {error}</p>}
 
-      <div className="filter-bar" role="tablist" aria-label="Filter inquiries" style={{ marginBottom: 16 }}>
+      <div className="flex gap-2 flex-wrap mb-4" role="tablist" aria-label="Filter inquiries">
         {[
           { id: 'all', label: `All (${inquiries.length})` },
           { id: 'unread', label: `Unread (${unreadCount})` },
@@ -122,7 +122,7 @@ export default function AdminInquiries() {
             type="button"
             role="tab"
             aria-selected={filter === f.id}
-            className={`filter-pill ${filter === f.id ? 'active' : ''}`}
+            className={`px-[18px] py-[9px] rounded-full border text-[13.5px] font-medium transition-all ${filter === f.id ? 'bg-ink text-white border-ink' : 'bg-surface border-line text-ink-soft hover:border-accent hover:text-accent-deep'}`}
             onClick={() => setFilter(f.id)}
           >
             {f.label}
@@ -131,53 +131,53 @@ export default function AdminInquiries() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-icon">💬</div>
-          <h2>
+        <div className="flex flex-col items-center text-center py-16 px-5 bg-surface border border-line rounded-md">
+          <div className="w-16 h-16 rounded-[18px] bg-accent-soft text-accent-deep grid place-items-center text-[28px] mb-3.5">💬</div>
+          <h2 className="font-serif text-[22px] m-0 mb-1.5">
             {inquiries.length === 0 ? 'No inquiries yet' : 'Nothing here'}
           </h2>
-          <p>
+          <p className="text-muted text-[14px] max-w-[320px] m-0">
             {inquiries.length === 0
               ? 'Customer messages submitted via the contact form will appear here.'
               : 'Try switching the filter above to see other inquiries.'}
           </p>
         </div>
       ) : (
-        <div className="inquiry-list">
+        <div className="flex flex-col gap-3">
           {filtered.map((inq) => (
             <article
               key={inq.id}
-              className={`inquiry-card ${inq.is_read ? '' : 'unread'}`}
+              className={`bg-surface border rounded-md px-5 py-[18px] transition-colors flex gap-4 items-start max-sm:flex-col ${inq.is_read ? 'border-line' : 'border-accent/[0.32] bg-[rgba(184,114,43,0.04)]'}`}
             >
-              <div className="inquiry-body">
-                <div className="inquiry-head">
-                  {!inq.is_read && <span className="inquiry-unread-dot" aria-hidden="true" />}
-                  <span className="inquiry-name">{inq.name}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2.5 flex-wrap mb-1.5">
+                  {!inq.is_read && <span className="w-2 h-2 rounded-full bg-accent shrink-0" aria-hidden="true" />}
+                  <span className="text-[15px] font-semibold text-ink">{inq.name}</span>
                   {inq.phone && (
                     <>
-                      <span className="inquiry-divider">·</span>
-                      <a href={`tel:${inq.phone}`} className="inquiry-contact">
+                      <span className="text-line">·</span>
+                      <a href={`tel:${inq.phone}`} className="text-[13.5px] text-accent-deep font-medium no-underline hover:underline">
                         {inq.phone}
                       </a>
                     </>
                   )}
                   {inq.email && (
                     <>
-                      <span className="inquiry-divider">·</span>
-                      <a href={`mailto:${inq.email}`} className="inquiry-contact">
+                      <span className="text-line">·</span>
+                      <a href={`mailto:${inq.email}`} className="text-[13.5px] text-accent-deep font-medium no-underline hover:underline">
                         {inq.email}
                       </a>
                     </>
                   )}
                 </div>
-                <span className="inquiry-requirement">{inq.requirement}</span>
-                <p className="inquiry-message">{inq.message}</p>
-                <span className="inquiry-date">{formatDate(inq.created_at)}</span>
+                <span className="inline-block bg-accent-soft text-accent-deep text-[11.5px] font-semibold px-2.5 py-[3px] rounded-full mb-2 uppercase tracking-[0.4px]">{inq.requirement}</span>
+                <p className="text-[14px] text-ink-soft leading-[1.55] whitespace-pre-wrap m-0 mb-2">{inq.message}</p>
+                <span className="text-[12px] text-muted">{formatDate(inq.created_at)}</span>
               </div>
-              <div className="inquiry-actions">
+              <div className="flex flex-col gap-1.5 shrink-0 max-sm:flex-row max-sm:w-full">
                 <button
                   type="button"
-                  className={`toggle-read ${inq.is_read ? '' : 'is-unread'}`}
+                  className={`px-3.5 py-[7px] rounded-[10px] border text-[12.5px] font-semibold cursor-pointer transition-colors disabled:opacity-60 ${inq.is_read ? 'border-line bg-surface text-ink-soft hover:enabled:bg-bg hover:enabled:text-ink' : 'border-transparent bg-accent-soft text-accent-deep hover:enabled:bg-[#ecd6b6]'}`}
                   onClick={() => toggleRead(inq.id)}
                   disabled={busyId === inq.id}
                 >
@@ -185,7 +185,7 @@ export default function AdminInquiries() {
                 </button>
                 <button
                   type="button"
-                  className="danger"
+                  className="px-3.5 py-[7px] rounded-[10px] border border-[#f1d6d2] bg-surface text-danger text-[12.5px] font-semibold cursor-pointer transition-colors hover:enabled:bg-[#fbe9e7] disabled:opacity-60 max-sm:flex-1"
                   onClick={() => remove(inq.id)}
                   disabled={busyId === inq.id}
                 >

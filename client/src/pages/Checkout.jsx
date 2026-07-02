@@ -55,10 +55,10 @@ export default function Checkout() {
 
   if (cart.length === 0 && !placing) {
     return (
-      <main className="section">
-        <h1 className="section-title">Checkout</h1>
-        <p style={{ color: 'var(--muted)' }}>Your cart is empty.</p>
-        <Link to="/" className="btn btn-primary" style={{ marginTop: 16, display: 'inline-block' }}>
+      <main className="max-w-[1240px] mx-auto mt-[70px] px-7 max-sm:px-4">
+        <h1 className="font-serif text-[42px] font-medium m-0 tracking-[-0.5px]">Checkout</h1>
+        <p className="text-muted">Your cart is empty.</p>
+        <Link to="/" className="mt-4 inline-block px-[26px] py-[14px] rounded-full bg-accent text-[#ffffff] font-semibold text-[14.5px] tracking-[0.3px]">
           Continue shopping
         </Link>
       </main>
@@ -112,25 +112,26 @@ export default function Checkout() {
   }
 
   return (
-    <main className="section">
-      <h1 className="section-title" style={{ marginBottom: 24 }}>Checkout</h1>
+    <main className="max-w-[1240px] mx-auto mt-[70px] px-7 max-sm:px-4">
+      <h1 className="font-serif text-[42px] font-medium m-0 tracking-[-0.5px] mb-6">Checkout</h1>
       {user && !user.is_verified && (
-        <div className="verify-banner">
+        <div className="bg-[#fff5e6] border border-[#f4d4a3] text-[#6b3f0a] px-5 py-3.5 rounded-md mb-5 flex justify-between items-center gap-4 text-sm max-sm:flex-col max-sm:items-start">
           <span>
             <strong>Verify your email</strong> — we sent a link to{' '}
             <strong>{user.email}</strong>. Open it before placing an order.
           </span>
-          <button type="button" onClick={resendVerification} disabled={resending}>
+          <button type="button" onClick={resendVerification} disabled={resending}
+            className="bg-ink text-[#ffffff] px-4 py-2 rounded-full font-semibold text-[13px] whitespace-nowrap disabled:opacity-60">
             {resending ? 'Sending…' : 'Resend'}
           </button>
         </div>
       )}
-      <div className="checkout-page">
-        <form className="checkout-form-page" onSubmit={submit}>
-          <h3>Shipping address</h3>
+      <div className="grid grid-cols-1 gap-8 items-start tablet:grid-cols-[1.4fr_1fr]">
+        <form className="flex flex-col gap-3.5 bg-surface border border-line rounded-lg p-7" onSubmit={submit}>
+          <h3 className="m-0 font-serif text-[22px]">Shipping address</h3>
           {!addrLoading && addresses.length > 0 && (
             <>
-              <label className="row-check">
+              <label className="flex flex-row items-center gap-2 text-sm text-ink">
                 <input
                   type="radio"
                   checked={!useNewAddress}
@@ -143,7 +144,7 @@ export default function Checkout() {
                   value={selectedAddressId}
                   onChange={(e) => setSelectedAddressId(e.target.value)}
                   disabled={placing}
-                  style={{ padding: 12, borderRadius: 12, border: '1px solid var(--line)' }}
+                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none focus:border-accent"
                 >
                   {addresses.map((a) => (
                     <option key={a.id} value={a.id}>
@@ -152,7 +153,7 @@ export default function Checkout() {
                   ))}
                 </select>
               )}
-              <label className="row-check">
+              <label className="flex flex-row items-center gap-2 text-sm text-ink">
                 <input
                   type="radio"
                   checked={useNewAddress}
@@ -164,59 +165,66 @@ export default function Checkout() {
           )}
           {useNewAddress && (
             <>
-              <label>
+              <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
                 <span>Full name</span>
-                <input type="text" required value={form.full_name} onChange={onChange('full_name')} disabled={placing} />
+                <input type="text" required value={form.full_name} onChange={onChange('full_name')} disabled={placing}
+                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
               </label>
-              <label>
+              <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
                 <span>Phone</span>
-                <input type="tel" required pattern="[\d\s+\-()]{7,}" value={form.phone} onChange={onChange('phone')} disabled={placing} />
+                <input type="tel" required pattern="[\d\s+\-()]{7,}" value={form.phone} onChange={onChange('phone')} disabled={placing}
+                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
               </label>
-              <label>
+              <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
                 <span>Address line 1</span>
-                <input type="text" required value={form.address_line1} onChange={onChange('address_line1')} disabled={placing} />
+                <input type="text" required value={form.address_line1} onChange={onChange('address_line1')} disabled={placing}
+                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
               </label>
-              <label>
+              <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
                 <span>Address line 2 (optional)</span>
-                <input type="text" value={form.address_line2} onChange={onChange('address_line2')} disabled={placing} />
+                <input type="text" value={form.address_line2} onChange={onChange('address_line2')} disabled={placing}
+                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
               </label>
-              <label>
+              <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
                 <span>City</span>
-                <input type="text" required value={form.city} onChange={onChange('city')} disabled={placing} />
+                <input type="text" required value={form.city} onChange={onChange('city')} disabled={placing}
+                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
               </label>
-              <label>
+              <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
                 <span>State</span>
-                <input type="text" required value={form.state} onChange={onChange('state')} disabled={placing} />
+                <input type="text" required value={form.state} onChange={onChange('state')} disabled={placing}
+                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
               </label>
-              <label>
+              <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
                 <span>Pincode</span>
-                <input type="text" required value={form.pincode} onChange={onChange('pincode')} disabled={placing} pattern="\d{5,6}" />
+                <input type="text" required value={form.pincode} onChange={onChange('pincode')} disabled={placing} pattern="\d{5,6}"
+                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
               </label>
             </>
           )}
-          {error && <p style={{ color: '#c0392b', fontSize: 13 }}>⚠ {error}</p>}
-          <button type="submit" className="checkout-btn" disabled={placing}>
+          {error && <p className="text-danger text-[13px]">⚠ {error}</p>}
+          <button type="submit" className="p-4 bg-ink text-[#ffffff] rounded-full font-semibold text-[15px] transition-colors hover:enabled:bg-accent-deep disabled:opacity-60 disabled:cursor-not-allowed" disabled={placing}>
             {placing ? 'Placing order…' : `Place order · ${formatINR(total)}`}
           </button>
         </form>
 
-        <aside className="cart-summary">
-          <h3>Order summary</h3>
+        <aside className="bg-surface border border-line rounded-lg p-6 flex flex-col gap-3 static tablet:sticky tablet:top-[90px]">
+          <h3 className="m-0 mb-2 font-serif text-[22px]">Order summary</h3>
           {cart.map((item) => (
-            <div key={item.id} className="summary-row">
+            <div key={item.id} className="flex justify-between text-sm text-ink-soft">
               <span>{item.name} × {item.qty}</span>
               <span>{formatINR(item.price * item.qty)}</span>
             </div>
           ))}
-          <div className="summary-row">
+          <div className="flex justify-between text-sm text-ink-soft">
             <span>Subtotal</span>
             <span>{formatINR(subtotal)}</span>
           </div>
-          <div className="summary-row">
+          <div className="flex justify-between text-sm text-ink-soft">
             <span>Shipping</span>
             <span>{shipping === 0 ? 'Free' : formatINR(shipping)}</span>
           </div>
-          <div className="summary-row total">
+          <div className="flex justify-between text-xl font-bold text-ink pt-2 border-t border-line">
             <span>Total</span>
             <span>{formatINR(total)}</span>
           </div>

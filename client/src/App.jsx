@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import { AppProvider } from './AppContext'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -10,6 +10,7 @@ import RequireCustomerAuth from './components/RequireCustomerAuth'
 import AdminLayout from './components/admin/AdminLayout'
 
 import Home from './pages/Home'
+import CategoryPage from './pages/CategoryPage'
 import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
@@ -22,6 +23,13 @@ import VerifyEmail from './pages/VerifyEmail'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Contact from './pages/Contact'
+import Shipping from './pages/Shipping'
+import Returns from './pages/Returns'
+import SizeGuide from './pages/SizeGuide'
+import OurStory from './pages/OurStory'
+import Sustainability from './pages/Sustainability'
+import Careers from './pages/Careers'
+const LegalPage = lazy(() => import('./pages/PrivacyPolicy'))
 
 import AdminLogin from './pages/admin/Login'
 import AdminProducts from './pages/admin/Products'
@@ -105,6 +113,17 @@ export default function App() {
           <Route path="/forgot-password" element={<PublicLayout><ForgotPassword /></PublicLayout>} />
           <Route path="/reset-password" element={<PublicLayout><ResetPassword /></PublicLayout>} />
           <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
+          <Route path="/shipping" element={<PublicLayout><Shipping /></PublicLayout>} />
+          <Route path="/returns" element={<PublicLayout><Returns /></PublicLayout>} />
+          <Route path="/size-guide" element={<PublicLayout><SizeGuide /></PublicLayout>} />
+          <Route path="/our-story" element={<PublicLayout><OurStory /></PublicLayout>} />
+          <Route path="/sustainability" element={<PublicLayout><Sustainability /></PublicLayout>} />
+          <Route path="/careers" element={<PublicLayout><Careers /></PublicLayout>} />
+          <Route path="/legal" element={<PublicLayout><Suspense fallback={null}><LegalPage /></Suspense></PublicLayout>} />
+          <Route path="/handbags" element={<PublicLayout><CategoryPage category="Handbags" /></PublicLayout>} />
+          <Route path="/backpacks" element={<PublicLayout><CategoryPage category="Backpacks" /></PublicLayout>} />
+          <Route path="/school" element={<PublicLayout><CategoryPage category="School Bags" /></PublicLayout>} />
+          <Route path="/travel" element={<PublicLayout><CategoryPage category="Travel" /></PublicLayout>} />
 
           {/* Admin */}
           <Route path="/admin/login" element={<AdminLogin />} />

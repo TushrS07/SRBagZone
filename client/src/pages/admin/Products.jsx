@@ -58,7 +58,8 @@ export default function AdminProducts() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load()
-  }, [load])
+
+  }, [])
 
   const onToggle = async (id) => {
     setBusyId(id)
@@ -87,40 +88,40 @@ export default function AdminProducts() {
 
   return (
     <div>
-      {error && <p style={{ color: '#c0392b' }}>⚠ {error}</p>}
+      {error && <p className="text-danger">⚠ {error}</p>}
 
       {loading ? (
         <p>Loading…</p>
       ) : (
-        <div className="admin-card admin-table-wrap">
-        <table className="admin-table">
+        <div className="bg-surface border border-line rounded-md shadow-sm overflow-hidden overflow-x-auto">
+        <table className="w-full border-separate border-spacing-0 bg-surface border border-line rounded-md overflow-hidden text-sm">
           <thead>
             <tr>
-              <th>Image</th>
-              <th>Name</th>
-              <th>Category</th>
-              <th>Brand</th>
-              <th>Price</th>
-              <th>Stock</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th className="bg-bg px-3.5 py-3 text-left border-b border-line font-semibold text-xs uppercase tracking-[0.6px] text-ink-soft">Image</th>
+              <th className="bg-bg px-3.5 py-3 text-left border-b border-line font-semibold text-xs uppercase tracking-[0.6px] text-ink-soft">Name</th>
+              <th className="bg-bg px-3.5 py-3 text-left border-b border-line font-semibold text-xs uppercase tracking-[0.6px] text-ink-soft">Category</th>
+              <th className="bg-bg px-3.5 py-3 text-left border-b border-line font-semibold text-xs uppercase tracking-[0.6px] text-ink-soft">Brand</th>
+              <th className="bg-bg px-3.5 py-3 text-left border-b border-line font-semibold text-xs uppercase tracking-[0.6px] text-ink-soft">Price</th>
+              <th className="bg-bg px-3.5 py-3 text-left border-b border-line font-semibold text-xs uppercase tracking-[0.6px] text-ink-soft">Stock</th>
+              <th className="bg-bg px-3.5 py-3 text-left border-b border-line font-semibold text-xs uppercase tracking-[0.6px] text-ink-soft">Status</th>
+              <th className="bg-bg px-3.5 py-3 text-left border-b border-line font-semibold text-xs uppercase tracking-[0.6px] text-ink-soft">Actions</th>
             </tr>
           </thead>
           <tbody>
             {products.map((p) => (
-              <tr key={p.id} className={!p.is_active ? 'inactive' : ''}>
-                <td>
-                  <img src={p.image || FALLBACK_IMG} alt={p.name} className="admin-thumb" />
+              <tr key={p.id} className={!p.is_active ? 'opacity-55' : ''}>
+                <td className="px-3.5 py-3 border-b border-line align-middle">
+                  <img src={p.image || FALLBACK_IMG} alt={p.name} className="w-14 h-14 object-cover rounded-[8px] bg-bg" />
                 </td>
-                <td>{p.name}</td>
-                <td>{p.category}</td>
-                <td>{p.brand}</td>
-                <td>{formatINR(p.price)}</td>
-                <td>{p.stock_quantity ?? p.stock ?? 0}</td>
-                <td>
+                <td className="px-3.5 py-3 border-b border-line align-middle">{p.name}</td>
+                <td className="px-3.5 py-3 border-b border-line align-middle">{p.category}</td>
+                <td className="px-3.5 py-3 border-b border-line align-middle">{p.brand}</td>
+                <td className="px-3.5 py-3 border-b border-line align-middle">{formatINR(p.price)}</td>
+                <td className="px-3.5 py-3 border-b border-line align-middle">{p.stock_quantity ?? p.stock ?? 0}</td>
+                <td className="px-3.5 py-3 border-b border-line align-middle">
                   <button
                     type="button"
-                    className={`pill pill-toggle ${p.is_active ? 'pill-on' : 'pill-off'}`}
+                    className={`border-none cursor-pointer transition-all font-sans text-[13px] font-semibold px-[26px] py-2 rounded-full min-w-24 disabled:opacity-60 disabled:cursor-wait active:scale-[0.97] ${p.is_active ? 'bg-[#e2efe5] text-[#2f7a3a] hover:enabled:bg-[#d3e7d8]' : 'bg-[#fbe4e0] text-danger hover:enabled:bg-[#f6cec6]'}`}
                     onClick={() => onToggle(p.id)}
                     disabled={busyId === p.id}
                     title={p.is_active ? 'Click to hide this product' : 'Click to make this product active'}
@@ -128,14 +129,19 @@ export default function AdminProducts() {
                     {busyId === p.id ? '…' : p.is_active ? 'Active' : 'Inactive'}
                   </button>
                 </td>
-                <td>
-                  <div className="row-actions">
-                    <button type="button" onClick={() => setEditing(p)} disabled={busyId === p.id}>
+                <td className="px-3.5 py-3 border-b border-line align-middle">
+                  <div className="flex gap-1.5 flex-wrap">
+                    <button
+                      type="button"
+                      className="px-2.5 py-1.5 border border-line rounded-[8px] bg-surface text-ink text-[13px] font-medium hover:enabled:bg-bg"
+                      onClick={() => setEditing(p)}
+                      disabled={busyId === p.id}
+                    >
                       Edit
                     </button>
                     <button
                       type="button"
-                      className="danger"
+                      className="px-2.5 py-1.5 border border-[#e7c2bd] rounded-[8px] bg-surface text-danger text-[13px] font-medium hover:enabled:bg-[#fbe9e7]"
                       onClick={() => onDelete(p.id)}
                       disabled={busyId === p.id}
                     >
@@ -146,7 +152,7 @@ export default function AdminProducts() {
               </tr>
             ))}
             {products.length === 0 && (
-              <tr><td colSpan={8} style={{ textAlign: 'center', color: 'var(--muted)', padding: 24 }}>
+              <tr><td colSpan={8} className="px-3.5 py-6 border-b-0 text-center text-muted">
                 No products yet — click <strong>+ Add product</strong> to create your first.
               </td></tr>
             )}
