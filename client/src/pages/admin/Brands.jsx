@@ -3,6 +3,7 @@ import { api } from '../../api'
 import { FALLBACK_IMG } from '../../utils'
 import { readCache, writeCache } from '../../cache'
 import { useAdminPage } from '../../components/admin/useAdminPage'
+import RowsSkeleton from '../../components/RowsSkeleton'
 
 const CACHE_KEY = 'admin:brands'
 
@@ -70,7 +71,7 @@ export default function AdminBrands() {
   return (
     <div>
       {error && <p className="text-danger">⚠ {error}</p>}
-      {loading ? <p>Loading…</p> : (
+      {loading ? <RowsSkeleton rows={6} /> : (
         <div className="bg-surface border border-line rounded-md shadow-sm overflow-hidden overflow-x-auto">
         <table className="w-full border-separate border-spacing-0 bg-surface border border-line rounded-md overflow-hidden text-sm">
           <thead>
@@ -85,7 +86,7 @@ export default function AdminBrands() {
           <tbody>
             {brands.map((b) => (
               <tr key={b.id} className={!b.is_active ? 'opacity-55' : ''}>
-                <td className="px-3.5 py-3 border-b border-line align-middle"><img src={b.logo_url || FALLBACK_IMG} alt={b.name} className="w-14 h-14 object-cover rounded-[8px] bg-bg" /></td>
+                <td className="px-3.5 py-3 border-b border-line align-middle"><img src={b.logo_url || FALLBACK_IMG} alt={b.name} loading="lazy" decoding="async" className="w-14 h-14 object-cover rounded-[8px] bg-bg" /></td>
                 <td className="px-3.5 py-3 border-b border-line align-middle"><strong>{b.name}</strong></td>
                 <td className="px-3.5 py-3 border-b border-line align-middle">{b.description || '—'}</td>
                 <td className="px-3.5 py-3 border-b border-line align-middle">

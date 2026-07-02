@@ -3,6 +3,7 @@ import { api } from '../../api'
 import { FALLBACK_IMG, formatINR } from '../../utils'
 import { readCache, writeCache } from '../../cache'
 import { useAdminPage } from '../../components/admin/useAdminPage'
+import RowsSkeleton from '../../components/RowsSkeleton'
 import ProductForm from './ProductForm'
 
 const CACHE_KEY = 'admin:products'
@@ -91,7 +92,7 @@ export default function AdminProducts() {
       {error && <p className="text-danger">⚠ {error}</p>}
 
       {loading ? (
-        <p>Loading…</p>
+        <RowsSkeleton rows={6} />
       ) : (
         <div className="bg-surface border border-line rounded-md shadow-sm overflow-hidden overflow-x-auto">
         <table className="w-full border-separate border-spacing-0 bg-surface border border-line rounded-md overflow-hidden text-sm">
@@ -111,7 +112,7 @@ export default function AdminProducts() {
             {products.map((p) => (
               <tr key={p.id} className={!p.is_active ? 'opacity-55' : ''}>
                 <td className="px-3.5 py-3 border-b border-line align-middle">
-                  <img src={p.image || FALLBACK_IMG} alt={p.name} className="w-14 h-14 object-cover rounded-[8px] bg-bg" />
+                  <img src={p.image || FALLBACK_IMG} alt={p.name} loading="lazy" decoding="async" className="w-14 h-14 object-cover rounded-[8px] bg-bg" />
                 </td>
                 <td className="px-3.5 py-3 border-b border-line align-middle">{p.name}</td>
                 <td className="px-3.5 py-3 border-b border-line align-middle">{p.category}</td>

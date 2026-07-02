@@ -3,6 +3,7 @@ import { api } from '../../api'
 import { formatINR } from '../../utils'
 import { readCache, writeCache } from '../../cache'
 import { useAdminPage } from '../../components/admin/useAdminPage'
+import RowsSkeleton from '../../components/RowsSkeleton'
 
 const CACHE_KEY = 'admin:orders'
 
@@ -158,7 +159,7 @@ export default function AdminOrders() {
   return (
     <div>
       {error && <p className="text-danger">⚠ {error}</p>}
-      {loading ? <p>Loading…</p> : (
+      {loading ? <RowsSkeleton rows={6} /> : (
         <div className="bg-surface border border-line rounded-md shadow-sm overflow-hidden overflow-x-auto">
         <table className="w-full border-separate border-spacing-0 bg-surface border border-line rounded-md overflow-hidden text-sm">
           <thead>
@@ -213,7 +214,7 @@ export default function AdminOrders() {
                           onClick={(e) => e.stopPropagation()}
                           title="Open screenshot"
                         >
-                          <img src={o.payment.screenshot_url} alt="Screenshot" className="w-14 h-14 object-cover rounded-[8px] border border-line bg-bg cursor-zoom-in shrink-0 hover:border-accent" />
+                          <img src={o.payment.screenshot_url} alt="Screenshot" loading="lazy" decoding="async" className="w-14 h-14 object-cover rounded-[8px] border border-line bg-bg cursor-zoom-in shrink-0 hover:border-accent" />
                         </a>
                       )}
                       <div>

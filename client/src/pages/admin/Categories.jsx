@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { api } from '../../api'
 import { readCache, writeCache } from '../../cache'
 import { useAdminPage } from '../../components/admin/useAdminPage'
+import RowsSkeleton from '../../components/RowsSkeleton'
 
 const CACHE_KEY = 'admin:categories'
 
@@ -69,7 +70,7 @@ export default function AdminCategories() {
   return (
     <div>
       {error && <p className="text-danger">⚠ {error}</p>}
-      {loading ? <p>Loading…</p> : (
+      {loading ? <RowsSkeleton rows={6} /> : (
         <div className="bg-surface border border-line rounded-md shadow-sm overflow-hidden overflow-x-auto">
         <table className="w-full border-separate border-spacing-0 bg-surface border border-line rounded-md overflow-hidden text-sm">
           <thead>

@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../api'
 import { readCache, writeCache } from '../cache'
-import { FALLBACK_IMG } from '../utils'
+import SmartImage from '../components/SmartImage'
 import ProductCard from '../components/ProductCard'
+import ProductGridSkeleton from '../components/ProductCardSkeleton'
 
 const PRODUCTS_KEY = 'home:products'
 const CATEGORIES_KEY = 'home:categories'
@@ -87,11 +88,12 @@ export default function Home() {
             </div>
           </div>
           <div className="relative overflow-hidden max-lg:h-[300px] max-lg:order-first max-sm:h-[220px]">
-            <img
+            <SmartImage
               src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=1200&q=80"
               alt="Featured handbag"
-              onError={(e) => (e.currentTarget.src = FALLBACK_IMG)}
-              className="w-full h-full object-cover scale-[1.05]"
+              eager
+              className="w-full h-full"
+              imgClassName="w-full h-full object-cover scale-[1.05]"
             />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(26,22,18,0.5)_0%,transparent_30%)] max-lg:bg-[linear-gradient(180deg,transparent_60%,rgba(26,22,18,0.4)_100%)]" />
           </div>
@@ -158,7 +160,7 @@ export default function Home() {
         </div>
 
         {loading ? (
-          <p className="text-muted py-6">Loading bags…</p>
+          <ProductGridSkeleton count={8} />
         ) : filtered.length === 0 ? (
           <p className="text-muted py-6">
             No bags found{filter !== 'All' ? ` in ${filter}` : ''}.

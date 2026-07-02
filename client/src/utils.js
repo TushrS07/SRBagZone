@@ -12,3 +12,32 @@ const inrFmt = new Intl.NumberFormat('en-IN', {
   maximumFractionDigits: 0,
 })
 export const formatINR = (n) => inrFmt.format(n || 0)
+
+/**
+ * Ranked, case-insensitive search over a product list. Every whitespace-
+ * separated term must appear somewhere (name / category / brand / description);
+ * results are ordered by relevance (name matches rank highest).
+ */
+export function searchProducts(products, query) {
+  const q = (query || '').trim().toLowerCase()
+  if (!q) return []
+  const terms = q.split(/\s+/)
+  const scored = []
+  for (const p of products) {
+    const name = (p.name || '').toLowerCase()
+    const cat = (p.category || '').toLowerCase()
+    const brand = (p.brand || '').toLowerCase()
+    const desc = (p.description || '').toLowerCase()
+    const haystack = `${name} ${cat} ${brand} ${desc}`
+    if (!terms.every((t) => haystack.includes(t))) continue
+    let score = 0
+    if (name.startsWith(q)) score += 100
+    else if (name.includes(q)) score += 60
+    if (cat.includes(q)) score += 20
+    if (brand.includes(q)) score += 15
+    if (desc.includes(q)) score += 5
+    scored.push({ p, score })
+  }
+  scored.sort((a, b) => b.score - a.score || a.p.name.localeCompare(b.p.name))
+  return scored.map((s) => s.p)
+}

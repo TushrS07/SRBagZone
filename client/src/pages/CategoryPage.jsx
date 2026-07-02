@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { api } from '../api'
 import { readCache, writeCache } from '../cache'
 import ProductCard from '../components/ProductCard'
+import ProductGridSkeleton from '../components/ProductCardSkeleton'
 
 const PRODUCTS_KEY = 'home:products'
 
@@ -70,7 +71,7 @@ export default function CategoryPage({ category }) {
         </div>
 
         {loading ? (
-          <p className="text-muted py-6">Loading bags…</p>
+          <ProductGridSkeleton count={8} />
         ) : error ? (
           <p style={{ color: '#c0392b', marginTop: 12, fontSize: 13 }}>⚠ {error}</p>
         ) : filtered.length === 0 ? (

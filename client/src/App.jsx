@@ -10,6 +10,7 @@ import RequireCustomerAuth from './components/RequireCustomerAuth'
 import AdminLayout from './components/admin/AdminLayout'
 
 import Home from './pages/Home'
+import Search from './pages/Search'
 import CategoryPage from './pages/CategoryPage'
 import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
@@ -29,7 +30,7 @@ import SizeGuide from './pages/SizeGuide'
 import OurStory from './pages/OurStory'
 import Sustainability from './pages/Sustainability'
 import Careers from './pages/Careers'
-const LegalPage = lazy(() => import('./pages/PrivacyPolicy'))
+const LegalPage = lazy(() => import('./pages/Legal'))
 
 import AdminLogin from './pages/admin/Login'
 import AdminProducts from './pages/admin/Products'
@@ -73,6 +74,7 @@ export default function App() {
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<PublicLayout><Home /></PublicLayout>} />
+          <Route path="/search" element={<PublicLayout><Search /></PublicLayout>} />
           <Route path="/product/:id" element={<PublicLayout><ProductDetail /></PublicLayout>} />
           <Route path="/cart" element={<PublicLayout><Cart /></PublicLayout>} />
           <Route

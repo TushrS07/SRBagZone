@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api'
 import { useApp } from '../useApp'
+import Skeleton from '../components/Skeleton'
 
 export default function Addresses() {
   const { setToast } = useApp()
@@ -55,7 +56,20 @@ export default function Addresses() {
   }
 
   if (loading) {
-    return <main className="max-w-[1240px] mx-auto mt-[70px] px-7 max-sm:px-4"><p className="text-muted">Loading…</p></main>
+    return (
+      <main className="max-w-[1240px] mx-auto mt-[70px] px-7 max-sm:px-4">
+        <Skeleton className="h-10 w-60 mb-7" />
+        <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="p-5 bg-surface border border-line rounded-md flex flex-col gap-3">
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-3 w-3/4" />
+              <Skeleton className="h-3 w-2/3" />
+            </div>
+          ))}
+        </div>
+      </main>
+    )
   }
 
   return (

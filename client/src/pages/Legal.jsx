@@ -1,4 +1,4 @@
-export default function PrivacyPolicy() {
+export default function Legal() {
   return (
     <main className="max-w-[860px] mx-auto pt-10 px-8 pb-20 max-sm:pt-8 max-sm:px-4 max-sm:pb-[60px]">
       <div className="mb-12 border-b border-line pb-9 max-sm:mb-8 max-sm:pb-6">
@@ -10,7 +10,7 @@ export default function PrivacyPolicy() {
       <div className="flex flex-col gap-10">
         <div className="info-block">
           <h2 className="font-serif text-2xl font-medium m-0 mb-4 tracking-[-0.3px] text-ink max-sm:text-xl">1. Who We Are</h2>
-          <p className="text-[15px] text-ink-soft leading-[1.7] m-0 mb-2.5">SR Bagz Zone ("we", "our", "us") is an Indian e-commerce business selling bags and accessories. Our registered address is Jaipur, Rajasthan, India. You can reach us at <a href="mailto:support@srbagzzone.com" className="text-accent-deep font-semibold">support@srbagzzone.com</a> or <a href="tel:+918890308955" className="text-accent-deep font-semibold">+91 88903 08955</a>.</p>
+          <p className="text-[15px] text-ink-soft leading-[1.7] m-0 mb-2.5">SR Bagz Zone ("we", "our", "us") is an Indian e-commerce business selling bags and accessories. Our registered address is Jaipur, Rajasthan, India. You can reach us at <a href="mailto:srbagzzone@gmail.com" className="text-accent-deep font-semibold">srbagzzone@gmail.com</a> or <a href="tel:+918890308955" className="text-accent-deep font-semibold">+91 88903 08955</a>.</p>
         </div>
 
         <div className="info-block">
@@ -66,7 +66,7 @@ export default function PrivacyPolicy() {
             <li className="text-[15px] text-ink-soft leading-[1.55] pl-5 relative before:content-['–'] before:absolute before:left-0 before:text-accent before:font-semibold">Request deletion of your account and associated personal data</li>
             <li className="text-[15px] text-ink-soft leading-[1.55] pl-5 relative before:content-['–'] before:absolute before:left-0 before:text-accent before:font-semibold">Opt out of any marketing communications at any time</li>
           </ul>
-          <p className="text-[15px] text-ink-soft leading-[1.7] m-0 mb-2.5">To exercise any of these rights, contact us at <a href="mailto:support@srbagzzone.com" className="text-accent-deep font-semibold">support@srbagzzone.com</a>. We will respond within 30 days.</p>
+          <p className="text-[15px] text-ink-soft leading-[1.7] m-0 mb-2.5">To exercise any of these rights, contact us at <a href="mailto:srbagzzone@gmail.com" className="text-accent-deep font-semibold">srbagzzone@gmail.com</a>. We will respond within 30 days.</p>
         </div>
 
         <div className="info-block">
@@ -80,7 +80,7 @@ export default function PrivacyPolicy() {
         </div>
 
         <div className="bg-accent-soft border-l-[3px] border-accent rounded-r-sm px-5 py-4 text-sm text-ink-soft leading-[1.55]">
-          <strong>Questions?</strong> Contact us at <a href="mailto:support@srbagzzone.com" className="text-accent-deep font-semibold">support@srbagzzone.com</a> or call <strong>+91 88903 08955</strong>.
+          <strong>Questions?</strong> Contact us at <a href="mailto:srbagzzone@gmail.com" className="text-accent-deep font-semibold">srbagzzone@gmail.com</a> or call <strong>+91 88903 08955</strong>.
         </div>
       </div>
     </main>

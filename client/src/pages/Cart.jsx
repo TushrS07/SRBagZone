@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useApp } from '../useApp'
-import { FALLBACK_IMG, formatINR } from '../utils'
+import SmartImage from '../components/SmartImage'
+import { formatINR } from '../utils'
 
 export default function Cart() {
   const { cart, subtotal, shipping, total, changeQty, removeItem } = useApp()
@@ -27,11 +28,10 @@ export default function Cart() {
         <div className="flex flex-col gap-3">
           {cart.map((item) => (
             <div key={item.id} className="grid grid-cols-[78px_1fr_auto] gap-3.5 bg-surface border border-line rounded-md p-3">
-              <img
-                src={item.image || FALLBACK_IMG}
+              <SmartImage
+                src={item.image}
                 alt={item.name}
-                onError={(e) => (e.currentTarget.src = FALLBACK_IMG)}
-                className="w-[78px] h-[78px] object-cover rounded-[10px]"
+                className="w-[78px] h-[78px] rounded-[10px] shrink-0"
               />
               <div className="flex flex-col justify-between min-w-0">
                 <div>

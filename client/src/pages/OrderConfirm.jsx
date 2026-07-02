@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api'
+import SmartImage from '../components/SmartImage'
+import Skeleton from '../components/Skeleton'
 import { formatINR } from '../utils'
 
 const STATUS_LABELS = {
@@ -65,7 +67,13 @@ export default function OrderConfirm() {
   }
 
   if (loading)
-    return <main className="max-w-[1240px] mx-auto mt-[70px] px-7 max-sm:px-4"><p className="text-muted">Loading…</p></main>
+    return (
+      <main className="max-w-[1240px] mx-auto mt-[70px] px-7 max-sm:px-4">
+        <Skeleton className="h-10 w-64 mb-5" />
+        <Skeleton rounded="rounded-lg" className="h-32 w-full mb-4" />
+        <Skeleton rounded="rounded-lg" className="h-40 w-full" />
+      </main>
+    )
   if (error || !order)
     return (
       <main className="max-w-[1240px] mx-auto mt-[70px] px-7 max-sm:px-4">
@@ -127,10 +135,11 @@ export default function OrderConfirm() {
           </p>
         )}
         {screenshotUrl && (
-          <img
+          <SmartImage
             src={screenshotUrl}
             alt="Payment screenshot"
-            className="max-w-[260px] mt-3 rounded-[12px]"
+            className="max-w-[260px] w-full min-h-[200px] mt-3 rounded-[12px]"
+            imgClassName="w-full h-auto object-contain"
           />
         )}
         {paymentStatus !== 'confirmed' && (

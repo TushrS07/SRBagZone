@@ -213,3 +213,56 @@ body {
     font-size: 20px;
   }
 }
+
+/* ── Skeleton placeholders (SmartImage + content loading states) ── */
+@keyframes img-shimmer {
+  0% { background-position: 150% 0; }
+  100% { background-position: -150% 0; }
+}
+.img-skeleton,
+.skeleton {
+  background-color: var(--accent-soft);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: img-shimmer 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .img-skeleton,
+  .skeleton {
+    animation: none;
+  }
+}
+
+/* Strip the browser's native (blue) clear/decoration icon on search inputs */
+input[type='search']::-webkit-search-cancel-button,
+input[type='search']::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* ── Product detail — editorial reveal + gallery ── */
+@keyframes pdp-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pdp-media-in {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+.pdp-rise {
+  animation: pdp-rise 0.75s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+.pdp-media {
+  animation: pdp-media-in 0.85s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+/* Hide native scrollbar on the mobile thumbnail strip */
+.pdp-thumbs::-webkit-scrollbar { display: none; }
+.pdp-thumbs { scrollbar-width: none; }
+@media (prefers-reduced-motion: reduce) {
+  .pdp-rise, .pdp-media { animation: none; }
+}

@@ -3,6 +3,7 @@ import { api } from '../../api'
 import { readCache, writeCache } from '../../cache'
 import { useAdminPage } from '../../components/admin/useAdminPage'
 import { useAdminUI } from '../../components/admin/adminUI'
+import RowsSkeleton from '../../components/RowsSkeleton'
 
 const CACHE_KEY = 'admin:inquiries'
 
@@ -104,7 +105,7 @@ export default function AdminInquiries() {
   }
 
   if (loading) {
-    return <p className="text-muted">Loading inquiries…</p>
+    return <RowsSkeleton rows={5} />
   }
 
   return (

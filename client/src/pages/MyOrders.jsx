@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api'
+import Skeleton from '../components/Skeleton'
 import { formatINR } from '../utils'
 
 const STATUS_LABELS = {
@@ -45,7 +46,25 @@ export default function MyOrders() {
     }
   }, [])
 
-  if (loading) return <main className="max-w-[1240px] mx-auto mt-[70px] px-7 max-sm:px-4"><p className="text-muted">Loading…</p></main>
+  if (loading)
+    return (
+      <main className="max-w-[1240px] mx-auto mt-[70px] px-7 max-sm:px-4">
+        <Skeleton className="h-10 w-56 mb-6" />
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="grid grid-cols-[1.2fr_1.6fr_1fr_0.7fr] gap-4 items-center px-[22px] py-5 bg-surface border border-line rounded-md max-sm:grid-cols-2 max-sm:gap-2">
+              <div className="flex flex-col gap-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+              <Skeleton className="h-4 w-40 max-sm:w-24" />
+              <Skeleton className="h-4 w-16" />
+              <Skeleton rounded="rounded-full" className="h-6 w-20 justify-self-end" />
+            </div>
+          ))}
+        </div>
+      </main>
+    )
 
   return (
     <main className="max-w-[1240px] mx-auto mt-[70px] px-7 max-sm:px-4">

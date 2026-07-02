@@ -112,7 +112,7 @@ export default function Checkout() {
   }
 
   return (
-    <main className="max-w-[1240px] mx-auto mt-[70px] px-7 max-sm:px-4">
+    <main className="max-w-[1240px] mx-auto mt-[40px] px-7 max-sm:px-4">
       <h1 className="font-serif text-[42px] font-medium m-0 tracking-[-0.5px] mb-6">Checkout</h1>
       {user && !user.is_verified && (
         <div className="bg-[#fff5e6] border border-[#f4d4a3] text-[#6b3f0a] px-5 py-3.5 rounded-md mb-5 flex justify-between items-center gap-4 text-sm max-sm:flex-col max-sm:items-start">

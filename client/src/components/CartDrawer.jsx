@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useApp } from '../useApp'
-import { FALLBACK_IMG, formatINR } from '../utils'
+import SmartImage from './SmartImage'
+import { formatINR } from '../utils'
 
 export default function CartDrawer() {
   const {
@@ -55,11 +56,10 @@ export default function CartDrawer() {
           ) : (
             cart.map((item) => (
               <div key={item.id} className="grid grid-cols-[78px_1fr_auto] gap-[14px] bg-surface border border-line rounded-md p-3 max-sm:grid-cols-[64px_1fr_auto] max-sm:gap-[10px] max-sm:p-[10px]">
-                <img
-                  src={item.image || FALLBACK_IMG}
+                <SmartImage
+                  src={item.image}
                   alt={item.name}
-                  onError={(e) => (e.currentTarget.src = FALLBACK_IMG)}
-                  className="w-[78px] h-[78px] object-cover rounded-[10px] max-sm:w-16 max-sm:h-16"
+                  className="w-[78px] h-[78px] rounded-[10px] max-sm:w-16 max-sm:h-16"
                 />
                 <div className="flex flex-col justify-between min-w-0">
                   <div>
