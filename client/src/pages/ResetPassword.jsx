@@ -35,11 +35,11 @@ export default function ResetPassword() {
 
   if (!token) {
     return (
-      <main className="auth-page">
-        <div className="auth-form" style={{ textAlign: 'center' }}>
-          <h1 style={{ color: '#c0392b' }}>Invalid reset link</h1>
-          <p style={{ color: 'var(--muted)' }}>The reset link is missing or malformed.</p>
-          <Link to="/forgot-password" className="checkout-btn" style={{ textDecoration: 'none', textAlign: 'center' }}>
+      <main className="max-w-[460px] mx-auto mt-[60px] mb-20 px-5">
+        <div className="bg-surface border border-line rounded-lg p-9 flex flex-col gap-3.5 shadow-sm text-center">
+          <h1 className="font-serif text-[30px] m-0 tracking-[-0.3px] text-danger">Invalid reset link</h1>
+          <p className="text-muted">The reset link is missing or malformed.</p>
+          <Link to="/forgot-password" className="p-4 bg-ink text-[#ffffff] rounded-full font-semibold text-[15px] transition-colors hover:bg-accent-deep w-full no-underline text-center">
             Request a new link
           </Link>
         </div>
@@ -48,19 +48,19 @@ export default function ResetPassword() {
   }
 
   return (
-    <main className="auth-page">
-      <form onSubmit={submit} className="auth-form">
-        <h1>Choose a new password</h1>
-        <label>
+    <main className="max-w-[460px] mx-auto mt-[60px] mb-20 px-5">
+      <form onSubmit={submit} className="bg-surface border border-line rounded-lg p-9 flex flex-col gap-3.5 shadow-sm">
+        <h1 className="font-serif text-[30px] m-0 tracking-[-0.3px]">Choose a new password</h1>
+        <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
           <span>New password</span>
-          <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} autoComplete="new-password" />
+          <input className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none focus:border-accent max-sm:text-base" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} autoComplete="new-password" />
         </label>
-        <label>
+        <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
           <span>Confirm password</span>
-          <input type="password" required minLength={6} value={confirm} onChange={(e) => setConfirm(e.target.value)} disabled={loading} autoComplete="new-password" />
+          <input className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none focus:border-accent max-sm:text-base" type="password" required minLength={6} value={confirm} onChange={(e) => setConfirm(e.target.value)} disabled={loading} autoComplete="new-password" />
         </label>
-        {error && <p style={{ color: '#c0392b', fontSize: 13 }}>⚠ {error}</p>}
-        <button type="submit" className="checkout-btn" disabled={loading}>
+        {error && <p className="text-danger text-[13px]">⚠ {error}</p>}
+        <button type="submit" className="p-4 bg-ink text-[#ffffff] rounded-full font-semibold text-[15px] transition-colors hover:enabled:bg-accent-deep disabled:opacity-60 disabled:cursor-not-allowed w-full" disabled={loading}>
           {loading ? 'Saving…' : 'Reset password'}
         </button>
       </form>

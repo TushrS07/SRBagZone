@@ -5,7 +5,7 @@ import { FALLBACK_IMG, formatINR } from '../utils'
 function Stars({ rating }) {
   const full = Math.round(rating || 0)
   return (
-    <span className="stars" aria-label={`${rating} out of 5`}>
+    <span className="text-[#e3a92a] tracking-[1px] text-[13px]" aria-label={`${rating} out of 5`}>
       {'★'.repeat(full)}
       {'☆'.repeat(5 - full)}
     </span>
@@ -17,51 +17,65 @@ export default function ProductCard({ product }) {
   const inCart = cart.find((i) => i.id === product.id)
 
   return (
-    <article className="product-card">
-      <Link to={`/product/${product.id}`} className="product-media">
+    <article className="group bg-surface rounded-md overflow-hidden border border-line transition-[transform,box-shadow] duration-250 flex flex-col hover:-translate-y-1 hover:shadow-md">
+      {/* Media */}
+      <Link to={`/product/${product.id}`} className="relative aspect-square overflow-hidden bg-accent-soft block">
         <img
           src={product.image || FALLBACK_IMG}
           alt={product.name}
           loading="lazy"
           onError={(e) => (e.currentTarget.src = FALLBACK_IMG)}
+          className="w-full h-full object-cover transition-transform duration-500 ease-[ease] group-hover:scale-[1.06]"
         />
         {product.badge && (
-          <span className={`product-badge ${product.badge === 'Sale' ? 'sale' : ''}`}>
+          <span className={`absolute top-3 left-3 text-[#ffffff] text-[11px] font-bold tracking-[0.6px] uppercase py-[6px] px-[10px] rounded-full max-sm:text-[10px] max-sm:py-[5px] max-sm:px-2 ${product.badge === 'Sale' ? 'bg-danger' : 'bg-ink'}`}>
             {product.badge}
           </span>
         )}
       </Link>
-      <button className="product-fav" aria-label="Save to wishlist" type="button">
+
+      {/* Wishlist button — sits outside the Link, absolutely positioned relative to article */}
+      <button
+        className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/[0.92] grid place-items-center text-base text-ink-soft transition-[color,transform] duration-[180ms] hover:text-danger hover:scale-[1.08] max-sm:w-8 max-sm:h-8 max-sm:text-sm"
+        aria-label="Save to wishlist"
+        type="button"
+        style={{ position: 'absolute' }}
+      >
         ♡
       </button>
-      <div className="product-info">
-        <span className="product-cat">{product.category}</span>
-        <h3 className="product-name">
+
+      {/* Info */}
+      <div className="px-[18px] pt-[18px] pb-5 flex flex-col gap-2 flex-1 max-sm:px-[14px] max-sm:pt-[14px] max-sm:pb-4 max-sm:gap-[6px]">
+        <span className="text-[11.5px] uppercase tracking-[1.2px] text-muted font-semibold max-sm:text-[10.5px]">{product.category}</span>
+        <h3 className="font-serif text-[21px] font-medium m-0 tracking-[-0.2px] leading-[1.2] max-sm:text-base">
           <Link to={`/product/${product.id}`}>{product.name}</Link>
         </h3>
-        <div className="product-rating">
+        <div className="flex items-center gap-[6px] text-[13px] text-ink-soft">
           <Stars rating={product.rating} />
           <span>({product.reviews})</span>
         </div>
-        <div className="product-foot">
-          <div className="price">
-            <span className="price-now">{formatINR(product.price)}</span>
-            {product.was && <span className="price-was">{formatINR(product.was)}</span>}
+        <div className="mt-auto flex items-center justify-between gap-[10px] pt-[10px] max-sm:flex-col max-sm:items-stretch max-sm:gap-2">
+          <div className="flex items-baseline gap-2">
+            <span className="text-xl font-bold text-ink max-sm:text-base">{formatINR(product.price)}</span>
+            {product.was && <span className="text-[13px] text-muted line-through max-sm:text-xs">{formatINR(product.was)}</span>}
           </div>
           {inCart ? (
-            <div className="qty add-qty" aria-label="Quantity in cart">
+            /* qty add-qty variant */
+            <div className="inline-flex items-center border border-transparent rounded-full overflow-hidden bg-accent-soft" aria-label="Quantity in cart">
               <button
                 type="button"
                 onClick={() => changeQty(product.id, -1)}
                 aria-label={inCart.qty === 1 ? 'Remove from cart' : 'Decrease quantity'}
+                className="w-[30px] h-8 text-base text-accent-deep font-bold hover:bg-accent hover:text-[#ffffff] transition-colors duration-[180ms] max-sm:w-[38px] max-sm:h-[38px] max-sm:text-[17px]"
               >
                 −
               </button>
-              <span>{inCart.qty}</span>
+              <span className="min-w-[22px] text-center text-sm font-semibold text-accent-deep">{inCart.qty}</span>
               <button
                 type="button"
                 onClick={() => changeQty(product.id, 1)}
                 aria-label="Increase quantity"
+                className="w-[30px] h-8 text-base text-accent-deep font-bold hover:bg-accent hover:text-[#ffffff] transition-colors duration-[180ms] max-sm:w-[38px] max-sm:h-[38px] max-sm:text-[17px]"
               >
                 +
               </button>
@@ -69,7 +83,7 @@ export default function ProductCard({ product }) {
           ) : (
             <button
               type="button"
-              className="add-btn"
+              className="py-[9px] px-4 bg-ink text-[#ffffff] rounded-full text-[13px] font-semibold transition-[background,transform] duration-200 inline-flex items-center gap-[6px] hover:bg-accent hover:-translate-y-px max-sm:py-3 max-sm:px-[14px] max-sm:text-[12.5px] max-sm:justify-center max-sm:min-h-11"
               onClick={() => addToCart(product)}
             >
               + Add

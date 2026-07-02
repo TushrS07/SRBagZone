@@ -32,24 +32,24 @@ export default function VerifyEmail() {
   }, [token])
 
   return (
-    <main className="auth-page">
-      <div className="auth-form" style={{ textAlign: 'center', gap: 16 }}>
-        {state === 'pending' && <h1 style={{ margin: 0 }}>Verifying…</h1>}
+    <main className="max-w-[460px] mx-auto mt-[60px] mb-20 px-5">
+      <div className="bg-surface border border-line rounded-lg p-9 flex flex-col gap-3.5 shadow-sm text-center" style={{ gap: 16 }}>
+        {state === 'pending' && <h1 className="font-serif text-[30px] m-0 tracking-[-0.3px]">Verifying…</h1>}
         {state === 'ok' && (
           <>
-            <div className="order-check">✓</div>
-            <h1 style={{ margin: 0 }}>Email verified</h1>
-            <p style={{ color: 'var(--muted)', margin: 0 }}>{message}</p>
-            <Link to="/" className="checkout-btn" style={{ textDecoration: 'none', textAlign: 'center' }}>
+            <div className="w-16 h-16 rounded-full bg-[#2f7a3a] text-[#ffffff] inline-grid place-items-center text-[32px] mx-auto">✓</div>
+            <h1 className="font-serif text-[30px] m-0 tracking-[-0.3px]">Email verified</h1>
+            <p className="text-muted m-0">{message}</p>
+            <Link to="/" className="p-4 bg-ink text-[#ffffff] rounded-full font-semibold text-[15px] transition-colors hover:bg-accent-deep w-full no-underline text-center">
               Continue shopping
             </Link>
           </>
         )}
         {state === 'error' && (
           <>
-            <h1 style={{ margin: 0, color: '#c0392b' }}>Verification failed</h1>
-            <p style={{ color: 'var(--muted)', margin: 0 }}>{message}</p>
-            <Link to="/login" className="checkout-btn" style={{ textDecoration: 'none', textAlign: 'center' }}>
+            <h1 className="font-serif text-[30px] m-0 tracking-[-0.3px] text-danger">Verification failed</h1>
+            <p className="text-muted m-0">{message}</p>
+            <Link to="/login" className="p-4 bg-ink text-[#ffffff] rounded-full font-semibold text-[15px] transition-colors hover:bg-accent-deep w-full no-underline text-center">
               Back to sign in
             </Link>
           </>

@@ -157,105 +157,54 @@ export default function AdminOrders() {
 
   return (
     <div>
-      {error && <p style={{ color: '#c0392b' }}>⚠ {error}</p>}
-
-      <div className="orders-filters">
-        <div className="orders-filters-row">
-          <label className="orders-filter-field">
-            <span>Search</span>
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Order # or customer name"
-              autoComplete="off"
-            />
-          </label>
-          <label className="orders-filter-field">
-            <span>From</span>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              max={dateTo || undefined}
-            />
-          </label>
-          <label className="orders-filter-field">
-            <span>To</span>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              min={dateFrom || undefined}
-            />
-          </label>
-          {filtersActive && (
-            <button type="button" className="btn btn-ghost orders-filter-clear" onClick={clearFilters}>
-              Clear
-            </button>
-          )}
-        </div>
-        <div className="orders-status-row">
-          <span className="orders-status-label">Show:</span>
-          {STATUSES.map((s) => (
-            <label key={s} className="orders-status-check">
-              <input
-                type="checkbox"
-                checked={!!statusFilter[s]}
-                onChange={() => toggleStatusFilter(s)}
-              />
-              <span>{s}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
+      {error && <p className="text-danger">⚠ {error}</p>}
       {loading ? <p>Loading…</p> : (
-        <div className="admin-card admin-table-wrap">
-        <table className="admin-table">
+        <div className="bg-surface border border-line rounded-md shadow-sm overflow-hidden overflow-x-auto">
+        <table className="w-full border-separate border-spacing-0 bg-surface border border-line rounded-md overflow-hidden text-sm">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Date</th>
-              <th>Customer</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Payment</th>
-              <th>Actions</th>
+              <th className="bg-bg px-3.5 py-3 text-left border-b border-line font-semibold text-xs uppercase tracking-[0.6px] text-ink-soft">#</th>
+              <th className="bg-bg px-3.5 py-3 text-left border-b border-line font-semibold text-xs uppercase tracking-[0.6px] text-ink-soft">Date</th>
+              <th className="bg-bg px-3.5 py-3 text-left border-b border-line font-semibold text-xs uppercase tracking-[0.6px] text-ink-soft">Customer</th>
+              <th className="bg-bg px-3.5 py-3 text-left border-b border-line font-semibold text-xs uppercase tracking-[0.6px] text-ink-soft">Total</th>
+              <th className="bg-bg px-3.5 py-3 text-left border-b border-line font-semibold text-xs uppercase tracking-[0.6px] text-ink-soft">Status</th>
+              <th className="bg-bg px-3.5 py-3 text-left border-b border-line font-semibold text-xs uppercase tracking-[0.6px] text-ink-soft">Payment</th>
+              <th className="bg-bg px-3.5 py-3 text-left border-b border-line font-semibold text-xs uppercase tracking-[0.6px] text-ink-soft">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((o) => (
               <Fragment key={o.id}>
                 <tr>
-                  <td>
+                  <td className="px-3.5 py-3 border-b border-line align-middle">
                     <button
                       type="button"
-                      className="link"
+                      className="border-none bg-transparent text-accent-deep font-semibold p-0 cursor-pointer"
                       onClick={() => setExpanded(expanded === o.id ? null : o.id)}
                     >
                       #{o.id} {expanded === o.id ? '▴' : '▾'}
                     </button>
                   </td>
-                  <td>{fmtDate(o.created_at)}</td>
-                  <td>
+                  <td className="px-3.5 py-3 border-b border-line align-middle">{fmtDate(o.created_at)}</td>
+                  <td className="px-3.5 py-3 border-b border-line align-middle">
                     <div>{o.address?.full_name || '—'}</div>
-                    <div style={{ fontSize: 12, color: 'var(--muted)' }}>
+                    <div className="text-[12px] text-muted">
                       {o.address?.phone || ''}
                     </div>
                   </td>
-                  <td>{formatINR(o.total_amount)}</td>
-                  <td>
+                  <td className="px-3.5 py-3 border-b border-line align-middle">{formatINR(o.total_amount)}</td>
+                  <td className="px-3.5 py-3 border-b border-line align-middle">
                     <select
                       value={o.order_status}
                       onChange={(e) => setStatus(o.id, e.target.value)}
                       disabled={busyId === o.id}
+                      className="px-2.5 py-1.5 border border-line rounded-[8px] bg-surface text-[13px] font-sans"
                     >
                       {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </td>
-                  <td>
-                    <div className="payment-cell">
+                  <td className="px-3.5 py-3 border-b border-line align-middle">
+                    <div className="flex items-center gap-2.5 min-w-[220px]">
                       {o.payment?.screenshot_url && (
                         <a
                           href={o.payment.screenshot_url}
@@ -264,22 +213,32 @@ export default function AdminOrders() {
                           onClick={(e) => e.stopPropagation()}
                           title="Open screenshot"
                         >
-                          <img src={o.payment.screenshot_url} alt="Screenshot" className="payment-thumb" />
+                          <img src={o.payment.screenshot_url} alt="Screenshot" className="w-14 h-14 object-cover rounded-[8px] border border-line bg-bg cursor-zoom-in shrink-0 hover:border-accent" />
                         </a>
                       )}
                       <div>
                         <div>{o.payment?.payment_status || o.payment_status || '—'}</div>
                         {o.payment?.upi_reference_number && (
-                          <div style={{ fontSize: 11, color: 'var(--muted)' }}>
+                          <div className="text-[11px] text-muted">
                             ref: {o.payment.upi_reference_number}
                           </div>
                         )}
                         {o.payment?.payment_status === 'pending_confirmation' && (
-                          <div style={{ marginTop: 4, display: 'flex', gap: 4 }}>
-                            <button type="button" onClick={() => confirmPayment(o.payment.id)} disabled={busyId === o.payment.id}>
+                          <div className="mt-1 flex gap-1">
+                            <button
+                              type="button"
+                              className="px-2.5 py-1.5 border border-line rounded-[8px] bg-surface text-ink text-[13px] font-medium hover:enabled:bg-bg"
+                              onClick={() => confirmPayment(o.payment.id)}
+                              disabled={busyId === o.payment.id}
+                            >
                               ✓ Confirm
                             </button>
-                            <button type="button" className="danger" onClick={() => rejectPayment(o.payment.id)} disabled={busyId === o.payment.id}>
+                            <button
+                              type="button"
+                              className="px-2.5 py-1.5 border border-[#e7c2bd] rounded-[8px] bg-surface text-danger text-[13px] font-medium hover:enabled:bg-[#fbe9e7]"
+                              onClick={() => rejectPayment(o.payment.id)}
+                              disabled={busyId === o.payment.id}
+                            >
                               ✗ Reject
                             </button>
                           </div>
@@ -287,19 +246,24 @@ export default function AdminOrders() {
                       </div>
                     </div>
                   </td>
-                  <td>
-                    <button type="button" className="danger" onClick={() => del(o.id)} disabled={busyId === o.id}>
+                  <td className="px-3.5 py-3 border-b border-line align-middle">
+                    <button
+                      type="button"
+                      className="px-2.5 py-1.5 border border-[#e7c2bd] rounded-[8px] bg-surface text-danger text-[13px] font-medium hover:enabled:bg-[#fbe9e7]"
+                      onClick={() => del(o.id)}
+                      disabled={busyId === o.id}
+                    >
                       Delete
                     </button>
                   </td>
                 </tr>
                 {expanded === o.id && (
-                  <tr className="expanded-row">
-                    <td colSpan={7}>
-                      <div className="order-detail-grid">
+                  <tr className="bg-bg">
+                    <td colSpan={7} className="px-3.5 py-3 border-b border-line align-middle">
+                      <div className="grid grid-cols-3 gap-6 py-4 max-[960px]:grid-cols-1">
                         <div>
-                          <h4>Items</h4>
-                          <ul>
+                          <h4 className="m-0 mb-2 text-[13px] uppercase tracking-[0.6px] text-ink-soft">Items</h4>
+                          <ul className="list-none p-0 m-0 flex flex-col gap-1 text-[13px]">
                             {o.items.map((i) => (
                               <li key={i.id}>
                                 {i.quantity} × {i.product_name} — {formatINR(i.subtotal)}
@@ -308,9 +272,9 @@ export default function AdminOrders() {
                           </ul>
                         </div>
                         <div>
-                          <h4>Shipping address</h4>
+                          <h4 className="m-0 mb-2 text-[13px] uppercase tracking-[0.6px] text-ink-soft">Shipping address</h4>
                           {o.address ? (
-                            <div style={{ fontSize: 13 }}>
+                            <div className="text-[13px]">
                               {o.address.full_name}<br />
                               {o.address.phone}<br />
                               {o.address.address_line1}<br />
@@ -321,8 +285,8 @@ export default function AdminOrders() {
                         </div>
                         {o.payment?.remarks && (
                           <div>
-                            <h4>Remarks</h4>
-                            <p style={{ fontSize: 13 }}>{o.payment.remarks}</p>
+                            <h4 className="m-0 mb-2 text-[13px] uppercase tracking-[0.6px] text-ink-soft">Remarks</h4>
+                            <p className="text-[13px]">{o.payment.remarks}</p>
                           </div>
                         )}
                       </div>
@@ -331,11 +295,9 @@ export default function AdminOrders() {
                 )}
               </Fragment>
             ))}
-            {filtered.length === 0 && (
-              <tr><td colSpan={7} style={{ textAlign: 'center', color: 'var(--muted)', padding: 24 }}>
-                {orders.length === 0
-                  ? 'No orders yet.'
-                  : 'No orders match the current filters.'}
+            {orders.length === 0 && (
+              <tr><td colSpan={7} className="px-3.5 py-6 border-b-0 text-center text-muted">
+                No orders yet.
               </td></tr>
             )}
           </tbody>

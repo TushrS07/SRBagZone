@@ -65,12 +65,12 @@ export default function OrderConfirm() {
   }
 
   if (loading)
-    return <main className="section"><p style={{ color: 'var(--muted)' }}>Loading…</p></main>
+    return <main className="max-w-[1240px] mx-auto mt-[70px] px-7 max-sm:px-4"><p className="text-muted">Loading…</p></main>
   if (error || !order)
     return (
-      <main className="section">
-        <p style={{ color: '#c0392b' }}>⚠ {error || 'Order not found'}</p>
-        <Link to="/" className="btn btn-primary" style={{ marginTop: 16, display: 'inline-block' }}>
+      <main className="max-w-[1240px] mx-auto mt-[70px] px-7 max-sm:px-4">
+        <p className="text-danger">⚠ {error || 'Order not found'}</p>
+        <Link to="/" className="mt-4 inline-block px-[26px] py-[14px] rounded-full bg-accent text-[#ffffff] font-semibold text-[14.5px] tracking-[0.3px]">
           Back to shop
         </Link>
       </main>
@@ -80,35 +80,35 @@ export default function OrderConfirm() {
   const screenshotUrl = order.payment?.screenshot_url
 
   return (
-    <main className="section order-confirm">
-      <div className="order-confirm-head">
-        <div className="order-check">✓</div>
-        <h1>Thanks{order.address?.full_name ? `, ${order.address.full_name}` : ''}!</h1>
+    <main className="max-w-[1240px] mx-auto mt-[70px] px-7 max-sm:px-4">
+      <div className="text-center py-7">
+        <div className="w-16 h-16 rounded-full bg-[#2f7a3a] text-[#ffffff] inline-grid place-items-center text-[32px]">✓</div>
+        <h1 className="font-serif text-[34px] mt-3 mb-2">Thanks{order.address?.full_name ? `, ${order.address.full_name}` : ''}!</h1>
         <p>
           Your order <strong>#{order.id}</strong> is{' '}
           <strong>{STATUS_LABELS[order.order_status] || order.order_status}</strong>.
         </p>
       </div>
 
-      <div className="order-card">
-        <h3>Order summary</h3>
+      <div className="bg-surface border border-line rounded-lg p-6 mt-4 flex flex-col gap-2">
+        <h3 className="m-0 mb-2 font-serif text-[20px]">Order summary</h3>
         {order.items.map((item) => (
-          <div key={item.id} className="summary-row">
+          <div key={item.id} className="flex justify-between text-sm text-ink-soft">
             <span>{item.product_name} × {item.quantity}</span>
             <span>{formatINR(item.subtotal)}</span>
           </div>
         ))}
-        <div className="summary-row total">
+        <div className="flex justify-between text-sm text-ink-soft text-xl font-bold text-ink pt-2 border-t border-line">
           <span>Total</span>
           <span>{formatINR(order.total_amount)}</span>
         </div>
       </div>
 
       {order.address && (
-        <div className="order-card">
-          <h3>Shipping to</h3>
+        <div className="bg-surface border border-line rounded-lg p-6 mt-4 flex flex-col gap-2">
+          <h3 className="m-0 mb-2 font-serif text-[20px]">Shipping to</h3>
           <div>{order.address.full_name}</div>
-          <div style={{ color: 'var(--ink-soft)', fontSize: 14 }}>
+          <div className="text-ink-soft text-sm">
             {order.address.address_line1}
             {order.address.address_line2 ? `, ${order.address.address_line2}` : ''}<br />
             {order.address.city}, {order.address.state} — {order.address.pincode}<br />
@@ -117,11 +117,11 @@ export default function OrderConfirm() {
         </div>
       )}
 
-      <div className="order-card">
-        <h3>Payment</h3>
+      <div className="bg-surface border border-line rounded-lg p-6 mt-4 flex flex-col gap-2">
+        <h3 className="m-0 mb-2 font-serif text-[20px]">Payment</h3>
         <p>{PAYMENT_LABELS[paymentStatus] || paymentStatus}</p>
         {!screenshotUrl && (
-          <p style={{ color: 'var(--muted)', marginBottom: 12, fontSize: 14 }}>
+          <p className="text-muted mb-3 text-sm">
             Pay <strong>{formatINR(order.total_amount)}</strong> via UPI to <strong>srbagzone@upi</strong>,
             then upload the screenshot below (and the UPI reference number if you have it).
           </p>
@@ -130,18 +130,18 @@ export default function OrderConfirm() {
           <img
             src={screenshotUrl}
             alt="Payment screenshot"
-            style={{ maxWidth: 260, marginTop: 12, borderRadius: 12 }}
+            className="max-w-[260px] mt-3 rounded-[12px]"
           />
         )}
         {paymentStatus !== 'confirmed' && (
-          <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div className="mt-3 flex flex-col gap-2.5">
             <input
               type="text"
               placeholder="UPI reference number (optional)"
               value={upiRef}
               onChange={(e) => setUpiRef(e.target.value)}
               disabled={uploading}
-              style={{ padding: 12, borderRadius: 12, border: '1px solid var(--line)' }}
+              className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none focus:border-accent disabled:bg-bg disabled:text-muted"
             />
             <input
               ref={fileInput}
@@ -150,12 +150,12 @@ export default function OrderConfirm() {
               onChange={uploadScreenshot}
               disabled={uploading}
             />
-            {uploading && <p style={{ fontSize: 13, color: 'var(--muted)' }}>Uploading…</p>}
+            {uploading && <p className="text-[13px] text-muted">Uploading…</p>}
           </div>
         )}
       </div>
 
-      <Link to="/" className="btn btn-ghost-dark" style={{ marginTop: 24, display: 'inline-block' }}>
+      <Link to="/" className="mt-6 inline-block px-[28px] py-[14px] rounded-full border border-ink text-ink bg-transparent font-semibold text-[15px] hover:bg-ink hover:text-[#ffffff] transition-colors">
         Back to shop
       </Link>
     </main>
