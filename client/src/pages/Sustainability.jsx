@@ -32,7 +32,7 @@ export default function Sustainability() {
 
         <div className="info-block">
           <h2 className="font-serif text-2xl font-medium m-0 mb-4 tracking-[-0.3px] text-ink max-sm:text-xl">Local Manufacturing</h2>
-          <p className="text-[15px] text-ink-soft leading-[1.7] m-0 mb-2.5">Keeping production in India isn't just good for local employment — it significantly reduces the carbon footprint of transporting goods across continents. Our workshop in Jaipur is within 200 km of our primary raw material suppliers, keeping our supply chain tight.</p>
+          <p className="text-[15px] text-ink-soft leading-[1.7] m-0 mb-2.5">Keeping production in India isn't just good for local employment — it significantly reduces the carbon footprint of transporting goods across continents. Our workshop in Hanumangarh is within 200 km of our primary raw material suppliers, keeping our supply chain tight.</p>
         </div>
 
         <div className="info-block">

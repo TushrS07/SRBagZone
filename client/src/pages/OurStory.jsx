@@ -10,7 +10,7 @@ export default function OurStory() {
       <div className="flex flex-col gap-10">
         <div className="info-block">
           <h2 className="font-serif text-2xl font-medium m-0 mb-4 tracking-[-0.3px] text-ink max-sm:text-xl">Where It Began</h2>
-          <p className="text-[15px] text-ink-soft leading-[1.7] m-0 mb-2.5">SR Bagz Zone was founded in Jaipur with a small workshop and a clear mission: make bags that balance quality craftsmanship with everyday practicality. What started as a single product line for school students quickly grew into a full collection spanning handbags, backpacks, and travel accessories.</p>
+          <p className="text-[15px] text-ink-soft leading-[1.7] m-0 mb-2.5">SR Bagz Zone was founded in Hanumangarh with a small workshop and a clear mission: make bags that balance quality craftsmanship with everyday practicality. What started as a single product line for school students quickly grew into a full collection spanning handbags, backpacks, and travel accessories.</p>
           <p className="text-[15px] text-ink-soft leading-[1.7] m-0 mb-2.5">We noticed a gap in the Indian market — bags were either mass-produced and flimsy, or luxury-priced and impractical. We set out to build something in between: well-made, thoughtfully designed, and priced honestly.</p>
         </div>
 

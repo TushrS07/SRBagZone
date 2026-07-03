@@ -10,7 +10,7 @@ export default function Legal() {
       <div className="flex flex-col gap-10">
         <div className="info-block">
           <h2 className="font-serif text-2xl font-medium m-0 mb-4 tracking-[-0.3px] text-ink max-sm:text-xl">1. Who We Are</h2>
-          <p className="text-[15px] text-ink-soft leading-[1.7] m-0 mb-2.5">SR Bagz Zone ("we", "our", "us") is an Indian e-commerce business selling bags and accessories. Our registered address is Jaipur, Rajasthan, India. You can reach us at <a href="mailto:srbagzzone@gmail.com" className="text-accent-deep font-semibold">srbagzzone@gmail.com</a> or <a href="tel:+918890308955" className="text-accent-deep font-semibold">+91 88903 08955</a>.</p>
+          <p className="text-[15px] text-ink-soft leading-[1.7] m-0 mb-2.5">SR Bagz Zone ("we", "our", "us") is an Indian e-commerce business selling bags and accessories. Our registered address is Hanumangarh, Rajasthan, India. You can reach us at <a href="mailto:srbagzzone@gmail.com" className="text-accent-deep font-semibold">srbagzzone@gmail.com</a> or <a href="tel:+918890308955" className="text-accent-deep font-semibold">+91 88903 08955</a>.</p>
         </div>
 
         <div className="info-block">

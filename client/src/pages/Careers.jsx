@@ -18,8 +18,8 @@ export default function Careers() {
             </div>
             <div className="bg-surface border border-line rounded-md p-[22px] px-5">
               <div className="text-[26px] mb-2.5">📍</div>
-              <h3 className="font-serif text-[18px] font-medium m-0 mb-1.5">Based in Jaipur</h3>
-              <p className="text-sm text-muted m-0 leading-[1.5]">Our office and workshop are in Jaipur — we work in-person and value that.</p>
+              <h3 className="font-serif text-[18px] font-medium m-0 mb-1.5">Based in Hanumangarh</h3>
+              <p className="text-sm text-muted m-0 leading-[1.5]">Our office and workshop are in Hanumangarh — we work in-person and value that.</p>
             </div>
             <div className="bg-surface border border-line rounded-md p-[22px] px-5">
               <div className="text-[26px] mb-2.5">📈</div>
