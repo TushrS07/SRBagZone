@@ -26,15 +26,16 @@ export default function Signup() {
     setError('')
     setLoading(true)
     try {
+      const email = form.email.trim().toLowerCase()
       const { user, token } = await api.register({
         name: form.name.trim(),
-        email: form.email.trim().toLowerCase(),
+        email,
         phone: form.phone.trim() || null,
         password: form.password,
       })
       setUserAuth(user, token)
-      setToast(`Welcome, ${user.name}! Check your email to verify your account.`)
-      navigate(redirectTo, { replace: true })
+      setToast(`Welcome, ${user.name}! Enter the code we emailed you to verify your account.`)
+      navigate('/verify-email', { replace: true, state: { email, from: redirectTo } })
     } catch (err) {
       setError(err.message || 'Signup failed')
     } finally {

@@ -5,10 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from middleware import require_admin, require_verified_customer
 from database import get_session
+from config import settings
 from models.payment import Payment
 from models.order import Order
+from models.user import User
 from schemas.payment import PaymentDecision
 from utils.media import upload_file
+from job_queue import enqueue
 
 router = APIRouter(prefix="/api", tags=["payments"])
 Session = Annotated[AsyncSession, Depends(get_session)]
@@ -67,6 +70,20 @@ async def submit_payment(
     if not asset:
         raise HTTPException(status_code=400, detail={"message": "Screenshot upload failed"})
 
+    async def _notify_submitted():
+        await enqueue("payment_received", current["email"], {
+            "name": current["name"],
+            "order_id": str(order_id),
+            "amount": float(order.total_amount),
+        })
+        if settings.admin_email:
+            await enqueue("admin_new_payment", settings.admin_email, {
+                "order_id": str(order_id),
+                "customer_name": current["name"],
+                "amount": float(order.total_amount),
+                "upi_reference": upi_reference_number,
+            })
+
     if existing:
         existing.upi_reference_number = upi_reference_number
         existing.screenshot_url = asset.url
@@ -79,6 +96,7 @@ async def submit_payment(
         session.add(order)
         await session.commit()
         await session.refresh(existing)
+        await _notify_submitted()
         return _fmt(existing)
 
     pay = Payment(
@@ -94,6 +112,7 @@ async def submit_payment(
     session.add(order)
     await session.commit()
     await session.refresh(pay)
+    await _notify_submitted()
     return _fmt(pay)
 
 
@@ -131,6 +150,15 @@ async def confirm_payment(pid: str, body: PaymentDecision, admin: Admin, session
 
     await session.commit()
     await session.refresh(pay)
+
+    if order:
+        cust_row = await session.execute(select(User).where(User.id == order.user_id))
+        cust = cust_row.scalar_one_or_none()
+        if cust:
+            await enqueue("payment_confirmed", cust.email, {
+                "name": cust.name, "order_id": str(order.id),
+            })
+
     return _fmt(pay)
 
 
@@ -160,4 +188,13 @@ async def reject_payment(pid: str, body: PaymentDecision, admin: Admin, session:
 
     await session.commit()
     await session.refresh(pay)
+
+    if order:
+        cust_row = await session.execute(select(User).where(User.id == order.user_id))
+        cust = cust_row.scalar_one_or_none()
+        if cust:
+            await enqueue("payment_rejected", cust.email, {
+                "name": cust.name, "order_id": str(order.id), "remarks": body.remarks,
+            })
+
     return _fmt(pay)

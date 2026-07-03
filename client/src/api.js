@@ -92,14 +92,16 @@ export const api = {
     request('/api/auth/register', { method: 'POST', body }),
   logout: () => request('/api/auth/logout', { method: 'POST' }),
   me: () => request('/api/auth/me'),
-  verifyEmail: (token) =>
-    request(`/api/auth/verify-email?token=${encodeURIComponent(token)}`),
+  verifyEmail: (email, code) =>
+    request('/api/auth/verify-email', { method: 'POST', body: { email, code } }),
   resendVerification: () =>
     request('/api/auth/resend-verification', { method: 'POST' }),
   forgotPassword: (email) =>
     request('/api/auth/forgot-password', { method: 'POST', body: { email } }),
-  resetPassword: (token, new_password) =>
-    request('/api/auth/reset-password', { method: 'POST', body: { token, new_password } }),
+  verifyResetOtp: (email, code) =>
+    request('/api/auth/verify-reset-otp', { method: 'POST', body: { email, code } }),
+  resetPassword: (reset_token, new_password) =>
+    request('/api/auth/reset-password', { method: 'POST', body: { reset_token, new_password } }),
 
   // ── Public products ───────────────────────────────────────────────────
   listProducts: async (params = {}) => {

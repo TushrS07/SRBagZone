@@ -4,9 +4,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select, func
 from middleware import require_admin
 from database import get_session
+from config import settings
 from rate_limit import limiter
 from models.inquiry import Inquiry
 from schemas.inquiry import InquiryCreate
+from job_queue import enqueue
 
 
 router = APIRouter(prefix="/api/inquiries", tags=["inquiries"])
@@ -42,6 +44,16 @@ async def create_inquiry(request: Request, body: InquiryCreate, session: Session
     session.add(inq)
     await session.commit()
     await session.refresh(inq)
+
+    if settings.admin_email:
+        await enqueue("admin_new_inquiry", settings.admin_email, {
+            "name": inq.name,
+            "email": inq.email,
+            "phone": inq.phone,
+            "requirement": inq.requirement,
+            "message": inq.message,
+        })
+
     return _fmt(inq)
 
 

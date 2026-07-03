@@ -29,7 +29,20 @@ class Settings(BaseSettings):
 
     allowed_origins: str = "http://localhost:5173"
     app_env: str = "development"
-    frontend_url: str = "http://localhost:5173"
+
+    # ── Background jobs (ARQ + Upstash Redis) ──────────────────────────────
+    # Upstash gives a rediss:// URL. Empty → enqueue falls back to inline send.
+    redis_url: str = ""
+
+    # ── Email (Brevo transactional API) ────────────────────────────────────
+    brevo_api_key: str = ""
+    email_from: str = "noreply@srbagzone.com"
+    email_from_name: str = "SR Bagz Zone"
+    # Destination for admin alerts (new order / payment / inquiry)
+    admin_email: str = ""
+
+    # OTP lifetime in minutes (email verification + password reset)
+    otp_ttl_minutes: int = 10
 
     @property
     def origins_list(self) -> List[str]:

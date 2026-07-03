@@ -9,6 +9,7 @@ from sqlalchemy import text
 from config import settings
 from database import connect_db, close_db, engine
 from cloudinary_config import init_cloudinary
+from job_queue import create_redis_pool, close_redis_pool
 from rate_limit import limiter
 from routers import auth, products, brands, categories, orders, addresses, payments, inquiries
 import os
@@ -21,7 +22,9 @@ _start_time = datetime.now(timezone.utc)
 async def lifespan(app: FastAPI):
     await connect_db()
     init_cloudinary()
+    app.state.arq_pool = await create_redis_pool()
     yield
+    await close_redis_pool()
     await close_db()
 
 
