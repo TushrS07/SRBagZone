@@ -7,7 +7,7 @@ from fastapi import UploadFile, HTTPException, status
 
 logger = logging.getLogger(__name__)
 
-MAX_UPLOAD_BYTES = 2 * 1024 * 1024  # 2 MB
+MAX_UPLOAD_BYTES = 30 * 1024 * 1024  # 30 MB
 
 
 @dataclass
