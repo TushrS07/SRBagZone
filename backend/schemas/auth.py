@@ -29,12 +29,26 @@ class AuthResponse(BaseModel):
     user: UserProfile
 
 
+class VerifyEmailRequest(BaseModel):
+    email: EmailStr
+    code: str
+
+
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
 
 
+class VerifyResetOtpRequest(BaseModel):
+    email: EmailStr
+    code: str
+
+
+class VerifyResetOtpResponse(BaseModel):
+    reset_token: str
+
+
 class ResetPasswordRequest(BaseModel):
-    token: str
+    reset_token: str
     new_password: str
 
 

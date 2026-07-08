@@ -71,7 +71,7 @@ export default function Checkout() {
     setResending(true)
     try {
       await api.resendVerification()
-      setToast('Verification email sent — check your inbox.')
+      setToast('Verification code sent — check your inbox.')
     } catch (err) {
       setToast(err.message || 'Could not resend')
     } finally {
@@ -117,13 +117,20 @@ export default function Checkout() {
       {user && !user.is_verified && (
         <div className="bg-[#fff5e6] border border-[#f4d4a3] text-[#6b3f0a] px-5 py-3.5 rounded-md mb-5 flex justify-between items-center gap-4 text-sm max-sm:flex-col max-sm:items-start">
           <span>
-            <strong>Verify your email</strong> — we sent a link to{' '}
-            <strong>{user.email}</strong>. Open it before placing an order.
+            <strong>Verify your email</strong> — we sent a 6-digit code to{' '}
+            <strong>{user.email}</strong>. Verify before placing an order.
           </span>
-          <button type="button" onClick={resendVerification} disabled={resending}
-            className="bg-ink text-[#ffffff] px-4 py-2 rounded-full font-semibold text-[13px] whitespace-nowrap disabled:opacity-60">
-            {resending ? 'Sending…' : 'Resend'}
-          </button>
+          <div className="flex items-center gap-2 max-sm:w-full">
+            <button type="button"
+              onClick={() => navigate('/verify-email', { state: { email: user.email, from: '/checkout' } })}
+              className="bg-ink text-[#ffffff] px-4 py-2 rounded-full font-semibold text-[13px] whitespace-nowrap">
+              Verify now
+            </button>
+            <button type="button" onClick={resendVerification} disabled={resending}
+              className="text-[#6b3f0a] px-2 py-2 font-semibold text-[13px] whitespace-nowrap underline disabled:opacity-60">
+              {resending ? 'Sending…' : 'Resend'}
+            </button>
+          </div>
         </div>
       )}
       <div className="grid grid-cols-1 gap-8 items-start tablet:grid-cols-[1.4fr_1fr]">

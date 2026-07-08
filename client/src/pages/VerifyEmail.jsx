@@ -1,60 +1,133 @@
-import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { getUser, setUserAuth } from '../userAuth'
 
-export default function VerifyEmail() {
-  const [params] = useSearchParams()
-  const token = params.get('token') || ''
-  const [state, setState] = useState('pending') // 'pending' | 'ok' | 'error'
-  const [message, setMessage] = useState('')
+const inputClass =
+  'px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none focus:border-accent max-sm:text-base'
 
-  useEffect(() => {
-    if (!token) {
-      // setState only happens once we know there's no token to verify
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setState('error')
-      setMessage('Missing verification token')
-      return
+export default function VerifyEmail() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const redirectTo = location.state?.from || '/'
+  const currentUser = getUser()
+
+  const [email, setEmail] = useState(location.state?.email || currentUser?.email || '')
+  const [code, setCode] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
+  const [done, setDone] = useState(false)
+
+  const submit = async (e) => {
+    e.preventDefault()
+    setError('')
+    setNotice('')
+    setLoading(true)
+    try {
+      await api.verifyEmail(email.trim().toLowerCase(), code.trim())
+      const u = getUser()
+      if (u) setUserAuth({ ...u, is_verified: true })
+      setDone(true)
+    } catch (err) {
+      setError(err.message || 'Verification failed')
+    } finally {
+      setLoading(false)
     }
-    api
-      .verifyEmail(token)
-      .then(() => {
-        setState('ok')
-        setMessage('Your email has been verified.')
-        const u = getUser()
-        if (u) setUserAuth({ ...u, is_verified: true })
-      })
-      .catch((err) => {
-        setState('error')
-        setMessage(err.message || 'Verification failed')
-      })
-  }, [token])
+  }
+
+  const resend = async () => {
+    setError('')
+    setNotice('')
+    setResending(true)
+    try {
+      await api.resendVerification()
+      setNotice('A new code has been sent to your email.')
+    } catch (err) {
+      setError(err.message || 'Could not resend the code')
+    } finally {
+      setResending(false)
+    }
+  }
+
+  if (done) {
+    return (
+      <main className="max-w-[460px] mx-auto mt-[60px] mb-20 px-5">
+        <div className="bg-surface border border-line rounded-lg p-9 flex flex-col gap-4 shadow-sm text-center">
+          <div className="w-16 h-16 rounded-full bg-[#2f7a3a] text-[#ffffff] inline-grid place-items-center text-[32px] mx-auto">✓</div>
+          <h1 className="font-serif text-[30px] m-0 tracking-[-0.3px]">Email verified</h1>
+          <p className="text-muted m-0">Your account is now verified.</p>
+          <button
+            onClick={() => navigate(redirectTo, { replace: true })}
+            className="p-4 bg-ink text-[#ffffff] rounded-full font-semibold text-[15px] transition-colors hover:bg-accent-deep w-full text-center"
+          >
+            Continue shopping
+          </button>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main className="max-w-[460px] mx-auto mt-[60px] mb-20 px-5">
-      <div className="bg-surface border border-line rounded-lg p-9 flex flex-col gap-3.5 shadow-sm text-center" style={{ gap: 16 }}>
-        {state === 'pending' && <h1 className="font-serif text-[30px] m-0 tracking-[-0.3px]">Verifying…</h1>}
-        {state === 'ok' && (
-          <>
-            <div className="w-16 h-16 rounded-full bg-[#2f7a3a] text-[#ffffff] inline-grid place-items-center text-[32px] mx-auto">✓</div>
-            <h1 className="font-serif text-[30px] m-0 tracking-[-0.3px]">Email verified</h1>
-            <p className="text-muted m-0">{message}</p>
-            <Link to="/" className="p-4 bg-ink text-[#ffffff] rounded-full font-semibold text-[15px] transition-colors hover:bg-accent-deep w-full no-underline text-center">
-              Continue shopping
-            </Link>
-          </>
+      <form onSubmit={submit} className="bg-surface border border-line rounded-lg p-9 flex flex-col gap-3.5 shadow-sm">
+        <h1 className="font-serif text-[30px] m-0 tracking-[-0.3px]">Verify your email</h1>
+        <p className="text-muted text-sm mt-[-4px]">
+          We emailed a 6-digit code to your address. Enter it below to verify your account.
+        </p>
+        <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
+          <span>Email</span>
+          <input
+            className={inputClass}
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
+            autoComplete="email"
+          />
+        </label>
+        <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
+          <span>Verification code</span>
+          <input
+            className={`${inputClass} tracking-[8px] text-center text-lg`}
+            type="text"
+            inputMode="numeric"
+            pattern="\d{6}"
+            maxLength={6}
+            required
+            placeholder="––––––"
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+            disabled={loading}
+            autoComplete="one-time-code"
+          />
+        </label>
+        {error && <p className="text-danger text-[13px]">⚠ {error}</p>}
+        {notice && <p className="text-[#2f7a3a] text-[13px]">{notice}</p>}
+        <button
+          type="submit"
+          className="p-4 bg-ink text-[#ffffff] rounded-full font-semibold text-[15px] transition-colors hover:enabled:bg-accent-deep disabled:opacity-60 disabled:cursor-not-allowed w-full"
+          disabled={loading || code.length !== 6}
+        >
+          {loading ? 'Verifying…' : 'Verify email'}
+        </button>
+        {currentUser ? (
+          <button
+            type="button"
+            onClick={resend}
+            disabled={resending}
+            className="text-[13px] text-muted text-center hover:underline disabled:opacity-60"
+          >
+            {resending ? 'Sending…' : "Didn't get a code? Resend"}
+          </button>
+        ) : (
+          <Link to="/login" className="text-[13px] text-muted text-center hover:underline">
+            Back to sign in
+          </Link>
         )}
-        {state === 'error' && (
-          <>
-            <h1 className="font-serif text-[30px] m-0 tracking-[-0.3px] text-danger">Verification failed</h1>
-            <p className="text-muted m-0">{message}</p>
-            <Link to="/login" className="p-4 bg-ink text-[#ffffff] rounded-full font-semibold text-[15px] transition-colors hover:bg-accent-deep w-full no-underline text-center">
-              Back to sign in
-            </Link>
-          </>
-        )}
-      </div>
+      </form>
     </main>
   )
 }

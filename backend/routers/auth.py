@@ -1,30 +1,37 @@
 import asyncio
-import secrets
 from datetime import datetime, timedelta, timezone
-from typing import Annotated, Optional
+from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 import jwt
 import bcrypt
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from config import settings
 from database import get_session
 from middleware import get_current_user
 from models.user import User
+from models.otp import OtpCode
 from rate_limit import limiter
 from schemas.auth import (
     RegisterRequest,
     LoginRequest,
     UserProfile,
     AuthResponse,
+    VerifyEmailRequest,
     ForgotPasswordRequest,
+    VerifyResetOtpRequest,
+    VerifyResetOtpResponse,
     ResetPasswordRequest,
     SimpleMessage,
 )
-from utils.email_util import send_email
+from utils.otp import generate_code, hash_code, verify_code
+from job_queue import enqueue
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 Session = Annotated[AsyncSession, Depends(get_session)]
+
+RESET_TOKEN_TTL_MINUTES = 15
 
 
 def _create_token(user_id: str, email: str, role: str) -> str:
@@ -33,6 +40,18 @@ def _create_token(user_id: str, email: str, role: str) -> str:
         "sub": user_id,
         "email": email,
         "role": role,
+        "exp": expire,
+        "iat": datetime.now(timezone.utc),
+    }
+    return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+
+
+def _create_reset_token(user_id: str) -> str:
+    """Short-lived token proving the user passed the reset-OTP step."""
+    expire = datetime.now(timezone.utc) + timedelta(minutes=RESET_TOKEN_TTL_MINUTES)
+    payload = {
+        "sub": user_id,
+        "purpose": "pwd_reset",
         "exp": expire,
         "iat": datetime.now(timezone.utc),
     }
@@ -66,6 +85,62 @@ def _bcrypt_hash(password: str) -> str:
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
+# ─── OTP helpers ──────────────────────────────────────────────────────────────
+async def _issue_otp(session: AsyncSession, email: str, purpose: str, name: str) -> None:
+    """Invalidate any prior code for (email, purpose), mint a new one, enqueue the email."""
+    await session.execute(
+        delete(OtpCode).where(
+            OtpCode.email == email,
+            OtpCode.purpose == purpose,
+            OtpCode.consumed_at.is_(None),
+        )
+    )
+    code = generate_code()
+    session.add(OtpCode(
+        email=email,
+        purpose=purpose,
+        code_hash=hash_code(code),
+        expires_at=datetime.now(timezone.utc) + timedelta(minutes=settings.otp_ttl_minutes),
+    ))
+    await session.commit()
+
+    event = "verify_email_otp" if purpose == "verify_email" else "reset_password_otp"
+    await enqueue(event, email, {"name": name, "code": code})
+
+
+async def _consume_otp(session: AsyncSession, email: str, purpose: str, code: str) -> None:
+    """Validate + consume the latest active code, or raise HTTPException."""
+    result = await session.execute(
+        select(OtpCode)
+        .where(
+            OtpCode.email == email,
+            OtpCode.purpose == purpose,
+            OtpCode.consumed_at.is_(None),
+        )
+        .order_by(OtpCode.created_at.desc())
+    )
+    otp = result.scalars().first()
+    invalid = HTTPException(status_code=400, detail={"message": "Invalid or expired code"})
+    if otp is None:
+        raise invalid
+
+    now = datetime.now(timezone.utc)
+    if otp.expires_at < now:
+        raise HTTPException(status_code=400, detail={"message": "Code has expired. Request a new one."})
+    if otp.attempts >= otp.max_attempts:
+        raise HTTPException(status_code=429, detail={"message": "Too many attempts. Request a new code."})
+
+    if not verify_code(code, otp.code_hash):
+        otp.attempts += 1
+        session.add(otp)
+        await session.commit()
+        raise invalid
+
+    otp.consumed_at = now
+    session.add(otp)
+    await session.commit()
+
+
 # ─── Register ───────────────────────────────────────────────────────────────
 @router.post(
     "/register",
@@ -81,7 +156,6 @@ async def register(request: Request, response: Response, body: RegisterRequest, 
 
     loop = asyncio.get_running_loop()
     hashed = await loop.run_in_executor(None, lambda: _bcrypt_hash(body.password))
-    verification_token = secrets.token_urlsafe(32)
 
     u = User(
         name=body.name,
@@ -90,7 +164,6 @@ async def register(request: Request, response: Response, body: RegisterRequest, 
         phone=body.phone,
         role="customer",
         is_verified=False,
-        verification_token=verification_token,
     )
     session.add(u)
     try:
@@ -100,12 +173,7 @@ async def register(request: Request, response: Response, body: RegisterRequest, 
         raise HTTPException(status_code=409, detail={"message": "An account with this email already exists"})
     await session.refresh(u)
 
-    verify_link = f"{settings.frontend_url}/verify-email?token={verification_token}"
-    send_email(
-        to=u.email,
-        subject="Verify your SR Bagz Zone account",
-        body=f"Hi {u.name},\n\nVerify your email:\n\n  {verify_link}\n",
-    )
+    await _issue_otp(session, u.email, "verify_email", u.name)
 
     token = _create_token(str(u.id), u.email, u.role)
     _set_cookie(response, token)
@@ -167,21 +235,25 @@ async def me(current: dict = Depends(get_current_user)):
     )
 
 
-# ─── Email verification ─────────────────────────────────────────────────────
-@router.get(
+# ─── Email verification (OTP) ───────────────────────────────────────────────
+@router.post(
     "/verify-email",
     response_model=SimpleMessage,
-    summary="Consume verification token",
+    summary="Verify email with a 6-digit code",
 )
-async def verify_email(token: str, session: Session):
-    if not token:
-        raise HTTPException(status_code=400, detail={"message": "Missing token"})
-    result = await session.execute(select(User).where(User.verification_token == token))
+@limiter.limit("10/10minute")
+async def verify_email(request: Request, body: VerifyEmailRequest, session: Session):
+    email = body.email.lower()
+    result = await session.execute(select(User).where(User.email == email))
     u = result.scalar_one_or_none()
     if u is None:
-        raise HTTPException(status_code=400, detail={"message": "Invalid or already-used verification link"})
+        raise HTTPException(status_code=400, detail={"message": "Invalid or expired code"})
+    if u.is_verified:
+        return {"message": "Email already verified"}
+
+    await _consume_otp(session, email, "verify_email", body.code)
+
     u.is_verified = True
-    u.verification_token = None
     session.add(u)
     await session.commit()
     return {"message": "Email verified"}
@@ -190,7 +262,7 @@ async def verify_email(token: str, session: Session):
 @router.post(
     "/resend-verification",
     response_model=SimpleMessage,
-    summary="Resend verification email",
+    summary="Resend the email-verification code",
 )
 @limiter.limit("3/10minute")
 async def resend_verification(
@@ -204,60 +276,71 @@ async def resend_verification(
         raise HTTPException(status_code=404, detail={"message": "User not found"})
     if u.is_verified:
         return {"message": "Already verified"}
-    u.verification_token = secrets.token_urlsafe(32)
-    session.add(u)
-    await session.commit()
 
-    link = f"{settings.frontend_url}/verify-email?token={u.verification_token}"
-    send_email(to=u.email, subject="Verify your SR Bagz Zone account",
-               body=f"Hi {u.name},\n\nVerify your email:\n\n  {link}\n")
-    return {"message": "Verification email sent"}
+    await _issue_otp(session, u.email, "verify_email", u.name)
+    return {"message": "Verification code sent"}
 
 
-# ─── Password reset ─────────────────────────────────────────────────────────
+# ─── Password reset (OTP, two-step) ─────────────────────────────────────────
 @router.post(
     "/forgot-password",
     response_model=SimpleMessage,
-    summary="Request a password reset link (always returns 200)",
+    summary="Request a password-reset code (always returns 200)",
 )
 @limiter.limit("5/hour")
 async def forgot_password(request: Request, body: ForgotPasswordRequest, session: Session):
     result = await session.execute(select(User).where(User.email == body.email.lower()))
     u = result.scalar_one_or_none()
     if u is not None and u.is_active:
-        u.reset_token = secrets.token_urlsafe(32)
-        u.reset_token_expires = datetime.now(timezone.utc) + timedelta(hours=1)
-        session.add(u)
-        await session.commit()
-        link = f"{settings.frontend_url}/reset-password?token={u.reset_token}"
-        send_email(
-            to=u.email,
-            subject="Reset your SR Bagz Zone password",
-            body=(
-                f"Hi {u.name},\n\nReset your password (expires in 1 hour):\n\n"
-                f"  {link}\n\nIf you didn't request this, you can ignore this email."
-            ),
-        )
-    return {"message": "If that email is registered, a reset link has been sent."}
+        await _issue_otp(session, u.email, "reset_password", u.name)
+    return {"message": "If that email is registered, a reset code has been sent."}
+
+
+@router.post(
+    "/verify-reset-otp",
+    response_model=VerifyResetOtpResponse,
+    summary="Verify the reset code, receive a short-lived reset token",
+)
+@limiter.limit("10/10minute")
+async def verify_reset_otp(request: Request, body: VerifyResetOtpRequest, session: Session):
+    email = body.email.lower()
+    result = await session.execute(select(User).where(User.email == email))
+    u = result.scalar_one_or_none()
+    if u is None:
+        raise HTTPException(status_code=400, detail={"message": "Invalid or expired code"})
+
+    await _consume_otp(session, email, "reset_password", body.code)
+    return VerifyResetOtpResponse(reset_token=_create_reset_token(str(u.id)))
 
 
 @router.post(
     "/reset-password",
     response_model=SimpleMessage,
-    summary="Consume reset token + set new password",
+    summary="Set a new password using a reset token",
 )
 @limiter.limit("5/hour")
 async def reset_password(request: Request, body: ResetPasswordRequest, session: Session):
-    if not body.token or len(body.new_password) < 6:
-        raise HTTPException(status_code=400, detail={"message": "Token required + password must be at least 6 chars"})
-    result = await session.execute(select(User).where(User.reset_token == body.token))
+    if len(body.new_password) < 6:
+        raise HTTPException(status_code=400, detail={"message": "Password must be at least 6 characters"})
+
+    expired = HTTPException(status_code=400, detail={"message": "Reset session is invalid or has expired"})
+    try:
+        payload = jwt.decode(body.reset_token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+    except jwt.InvalidTokenError:
+        raise expired
+    if payload.get("purpose") != "pwd_reset":
+        raise expired
+    user_id = payload.get("sub")
+    if not user_id:
+        raise expired
+
+    result = await session.execute(select(User).where(User.id == int(user_id)))
     u = result.scalar_one_or_none()
-    if u is None or u.reset_token_expires is None or u.reset_token_expires < datetime.now(timezone.utc):
-        raise HTTPException(status_code=400, detail={"message": "Reset link is invalid or has expired"})
+    if u is None:
+        raise expired
+
     loop = asyncio.get_running_loop()
     u.password_hash = await loop.run_in_executor(None, lambda: _bcrypt_hash(body.new_password))
-    u.reset_token = None
-    u.reset_token_expires = None
     session.add(u)
     await session.commit()
     return {"message": "Password updated"}

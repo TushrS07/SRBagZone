@@ -6,11 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 from middleware import get_current_user, require_admin, require_verified_customer
 from database import get_session
+from config import settings
 from models.order import Order, OrderItem
 from models.product import Product
 from models.address import Address
 from models.payment import Payment
+from models.user import User
 from schemas.order import OrderCreate, OrderStatusUpdate
+from job_queue import enqueue
 
 router = APIRouter(prefix="/api/orders", tags=["orders"])
 admin_router = APIRouter(prefix="/api/admin/orders", tags=["admin-orders"])
@@ -150,6 +153,32 @@ async def place_order(body: OrderCreate, current: Customer, session: Session):
 
     await session.commit()
     await session.refresh(o)
+
+    # ── Notifications: confirm to customer + alert admin ──────────────────────
+    items_ctx = [
+        {
+            "name": it["product"].name,
+            "quantity": it["quantity"],
+            "price": float(it["price"]),
+            "subtotal": float(it["subtotal"]),
+        }
+        for it in server_items
+    ]
+    await enqueue("order_placed", current["email"], {
+        "name": current["name"],
+        "order_id": str(o.id),
+        "items": items_ctx,
+        "total": float(total),
+    })
+    if settings.admin_email:
+        await enqueue("admin_new_order", settings.admin_email, {
+            "order_id": str(o.id),
+            "customer_name": current["name"],
+            "customer_email": current["email"],
+            "items": items_ctx,
+            "total": float(total),
+        })
+
     return await _hydrate(session, o)
 
 
@@ -203,6 +232,15 @@ async def update_order_status(oid: str, body: OrderStatusUpdate, admin: Admin, s
     session.add(o)
     await session.commit()
     await session.refresh(o)
+
+    # Notify the customer on terminal status changes
+    if body.order_status in ("completed", "cancelled"):
+        cust_row = await session.execute(select(User).where(User.id == o.user_id))
+        cust = cust_row.scalar_one_or_none()
+        if cust:
+            event = "order_completed" if body.order_status == "completed" else "order_cancelled"
+            await enqueue(event, cust.email, {"name": cust.name, "order_id": str(o.id)})
+
     return await _hydrate(session, o)
 
 
