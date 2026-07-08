@@ -226,38 +226,38 @@ function AddressForm({ address, onClose, onSaved, onToast }) {
           <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
             <span>Full name *</span>
             <input type="text" required value={form.full_name} onChange={set('full_name')} disabled={saving} autoComplete="name"
-              className="px-[14px] py-[11px] border border-line rounded-[10px] font-sans text-sm text-ink bg-white outline-none focus:border-accent disabled:bg-bg disabled:text-muted" />
+              className="px-[14px] py-[11px] border border-line rounded-[10px] font-sans text-sm max-sm:text-base text-ink bg-white outline-none focus:border-accent disabled:bg-bg disabled:text-muted" />
           </label>
           <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
             <span>Phone *</span>
             <input type="tel" required pattern="[\d\s+\-()]{7,}" value={form.phone} onChange={set('phone')} disabled={saving} autoComplete="tel"
-              className="px-[14px] py-[11px] border border-line rounded-[10px] font-sans text-sm text-ink bg-white outline-none focus:border-accent disabled:bg-bg disabled:text-muted" />
+              className="px-[14px] py-[11px] border border-line rounded-[10px] font-sans text-sm max-sm:text-base text-ink bg-white outline-none focus:border-accent disabled:bg-bg disabled:text-muted" />
           </label>
           <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
             <span>Address line 1 *</span>
             <input type="text" required value={form.address_line1} onChange={set('address_line1')} disabled={saving} autoComplete="address-line1"
-              className="px-[14px] py-[11px] border border-line rounded-[10px] font-sans text-sm text-ink bg-white outline-none focus:border-accent disabled:bg-bg disabled:text-muted" />
+              className="px-[14px] py-[11px] border border-line rounded-[10px] font-sans text-sm max-sm:text-base text-ink bg-white outline-none focus:border-accent disabled:bg-bg disabled:text-muted" />
           </label>
           <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
             <span>Address line 2</span>
             <input type="text" value={form.address_line2} onChange={set('address_line2')} disabled={saving} autoComplete="address-line2"
-              className="px-[14px] py-[11px] border border-line rounded-[10px] font-sans text-sm text-ink bg-white outline-none focus:border-accent disabled:bg-bg disabled:text-muted" />
+              className="px-[14px] py-[11px] border border-line rounded-[10px] font-sans text-sm max-sm:text-base text-ink bg-white outline-none focus:border-accent disabled:bg-bg disabled:text-muted" />
           </label>
           <div className="grid grid-cols-2 gap-3.5">
             <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
               <span>City *</span>
               <input type="text" required value={form.city} onChange={set('city')} disabled={saving} autoComplete="address-level2"
-                className="px-[14px] py-[11px] border border-line rounded-[10px] font-sans text-sm text-ink bg-white outline-none focus:border-accent disabled:bg-bg disabled:text-muted" />
+                className="px-[14px] py-[11px] border border-line rounded-[10px] font-sans text-sm max-sm:text-base text-ink bg-white outline-none focus:border-accent disabled:bg-bg disabled:text-muted" />
             </label>
             <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
               <span>State *</span>
               <input type="text" required value={form.state} onChange={set('state')} disabled={saving} autoComplete="address-level1"
-                className="px-[14px] py-[11px] border border-line rounded-[10px] font-sans text-sm text-ink bg-white outline-none focus:border-accent disabled:bg-bg disabled:text-muted" />
+                className="px-[14px] py-[11px] border border-line rounded-[10px] font-sans text-sm max-sm:text-base text-ink bg-white outline-none focus:border-accent disabled:bg-bg disabled:text-muted" />
             </label>
             <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
               <span>Pincode *</span>
               <input type="text" required pattern="\d{5,6}" value={form.pincode} onChange={set('pincode')} disabled={saving} autoComplete="postal-code"
-                className="px-[14px] py-[11px] border border-line rounded-[10px] font-sans text-sm text-ink bg-white outline-none focus:border-accent disabled:bg-bg disabled:text-muted" />
+                className="px-[14px] py-[11px] border border-line rounded-[10px] font-sans text-sm max-sm:text-base text-ink bg-white outline-none focus:border-accent disabled:bg-bg disabled:text-muted" />
             </label>
           </div>
           <label className="flex flex-row items-center gap-2 text-sm text-ink">

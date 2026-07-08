@@ -22,11 +22,11 @@ export default function Footer() {
               +91 88903 08955
             </a>
           </div>
-          <address className="footer-address">
+          <address className="not-italic text-[14px] leading-[1.6] text-[#c8bdb1] mt-4">
             Sangria Road, Hanumangarh Jn.<br />
             Hanumangarh, Rajasthan 335512
           </address>
-          <div className="footer-socials mt-4">
+          <div className="mt-4">
             <a
               href="https://www.instagram.com/sr_bag_zone_/"
               target="_blank"

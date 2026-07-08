@@ -1,4 +1,5 @@
-from pydantic import BaseModel, EmailStr
+import re
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
 
 
@@ -6,7 +7,15 @@ class RegisterRequest(BaseModel):
     name: str
     email: EmailStr
     password: str
-    phone: Optional[str] = None
+    phone: str
+
+    @field_validator("phone")
+    @classmethod
+    def phone_required(cls, v: str) -> str:
+        v = (v or "").strip()
+        if len(re.sub(r"\D", "", v)) < 7:
+            raise ValueError("A valid phone number is required")
+        return v
 
 
 class LoginRequest(BaseModel):

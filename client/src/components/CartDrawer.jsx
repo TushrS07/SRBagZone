@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useApp } from '../useApp'
 import SmartImage from './SmartImage'
@@ -14,6 +15,16 @@ export default function CartDrawer() {
     changeQty,
     removeItem,
   } = useApp()
+
+  // Lock background scroll while the drawer is open (mobile: it's full-screen).
+  useEffect(() => {
+    if (!cartOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [cartOpen])
 
   return (
     <>

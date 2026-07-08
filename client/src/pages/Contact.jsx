@@ -36,7 +36,7 @@ function validateField(name, value) {
   }
 }
 
-const inputCls = "px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none transition-colors focus:border-accent focus:shadow-[0_0_0_3px_rgba(184,114,43,0.12)] w-full"
+const inputCls = "px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm max-sm:text-base text-ink bg-white outline-none transition-colors focus:border-accent focus:shadow-[0_0_0_3px_rgba(184,114,43,0.12)] w-full"
 const labelCls = "flex flex-col gap-1.5 text-[13px] text-ink-soft"
 
 export default function Contact() {

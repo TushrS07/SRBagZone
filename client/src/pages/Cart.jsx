@@ -65,7 +65,7 @@ export default function Cart() {
             <span>Shipping</span>
             <span>{shipping === 0 ? 'Free' : formatINR(shipping)}</span>
           </div>
-          <div className="flex justify-between text-sm text-ink-soft text-xl font-bold text-ink pt-2 border-t border-line">
+          <div className="flex justify-between text-xl font-bold text-ink pt-2 border-t border-line">
             <span>Total</span>
             <span>{formatINR(total)}</span>
           </div>

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { useApp } from '../useApp'
 import { useUser } from '../useUser'
+import { useCooldown } from '../hooks/useCooldown'
 import { formatINR } from '../utils'
 
 export default function Checkout() {
@@ -27,6 +28,7 @@ export default function Checkout() {
   const [placing, setPlacing] = useState(false)
   const [error, setError] = useState('')
   const [resending, setResending] = useState(false)
+  const { remaining, active: cooldownActive, start: startCooldown } = useCooldown(60)
 
   useEffect(() => {
     let cancelled = false
@@ -71,6 +73,7 @@ export default function Checkout() {
     setResending(true)
     try {
       await api.resendVerification()
+      startCooldown()
       setToast('Verification code sent — check your inbox.')
     } catch (err) {
       setToast(err.message || 'Could not resend')
@@ -126,9 +129,9 @@ export default function Checkout() {
               className="bg-ink text-[#ffffff] px-4 py-2 rounded-full font-semibold text-[13px] whitespace-nowrap">
               Verify now
             </button>
-            <button type="button" onClick={resendVerification} disabled={resending}
-              className="text-[#6b3f0a] px-2 py-2 font-semibold text-[13px] whitespace-nowrap underline disabled:opacity-60">
-              {resending ? 'Sending…' : 'Resend'}
+            <button type="button" onClick={resendVerification} disabled={resending || cooldownActive}
+              className="text-[#6b3f0a] px-2 py-2 font-semibold text-[13px] whitespace-nowrap underline disabled:opacity-60 disabled:no-underline">
+              {resending ? 'Sending…' : cooldownActive ? `Resend in ${remaining}s` : 'Resend'}
             </button>
           </div>
         </div>
@@ -151,7 +154,7 @@ export default function Checkout() {
                   value={selectedAddressId}
                   onChange={(e) => setSelectedAddressId(e.target.value)}
                   disabled={placing}
-                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none focus:border-accent"
+                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm max-sm:text-base text-ink bg-white outline-none focus:border-accent"
                 >
                   {addresses.map((a) => (
                     <option key={a.id} value={a.id}>
@@ -175,37 +178,37 @@ export default function Checkout() {
               <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
                 <span>Full name</span>
                 <input type="text" required value={form.full_name} onChange={onChange('full_name')} disabled={placing}
-                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
+                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm max-sm:text-base text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
               </label>
               <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
                 <span>Phone</span>
                 <input type="tel" required pattern="[\d\s+\-()]{7,}" value={form.phone} onChange={onChange('phone')} disabled={placing}
-                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
+                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm max-sm:text-base text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
               </label>
               <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
                 <span>Address line 1</span>
                 <input type="text" required value={form.address_line1} onChange={onChange('address_line1')} disabled={placing}
-                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
+                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm max-sm:text-base text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
               </label>
               <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
                 <span>Address line 2 (optional)</span>
                 <input type="text" value={form.address_line2} onChange={onChange('address_line2')} disabled={placing}
-                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
+                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm max-sm:text-base text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
               </label>
               <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
                 <span>City</span>
                 <input type="text" required value={form.city} onChange={onChange('city')} disabled={placing}
-                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
+                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm max-sm:text-base text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
               </label>
               <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
                 <span>State</span>
                 <input type="text" required value={form.state} onChange={onChange('state')} disabled={placing}
-                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
+                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm max-sm:text-base text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
               </label>
               <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
                 <span>Pincode</span>
                 <input type="text" required value={form.pincode} onChange={onChange('pincode')} disabled={placing} pattern="\d{5,6}"
-                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
+                  className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm max-sm:text-base text-ink bg-white outline-none resize-y focus:border-accent disabled:bg-bg disabled:text-muted" />
               </label>
             </>
           )}

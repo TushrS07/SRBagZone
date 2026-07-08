@@ -14,8 +14,17 @@ export default function Signup() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  if (getUser()) {
-    navigate(redirectTo, { replace: true })
+  // Bounce an already-logged-in visitor away from the signup form. An
+  // unverified account (including the one we just created) must go to email
+  // verification, NOT the redirect target — otherwise the re-render triggered
+  // by setToast() after registration would race this guard and land on Home.
+  const existing = getUser()
+  if (existing) {
+    if (existing.is_verified) {
+      navigate(redirectTo, { replace: true })
+    } else {
+      navigate('/verify-email', { replace: true, state: { email: existing.email, from: redirectTo } })
+    }
     return null
   }
 
@@ -30,7 +39,7 @@ export default function Signup() {
       const { user, token } = await api.register({
         name: form.name.trim(),
         email,
-        phone: form.phone.trim() || null,
+        phone: form.phone.trim(),
         password: form.password,
       })
       setUserAuth(user, token)
@@ -65,8 +74,8 @@ export default function Signup() {
           <input className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none focus:border-accent max-sm:text-base" type="email" required value={form.email} onChange={set('email')} disabled={loading} autoComplete="email" />
         </label>
         <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
-          <span>Phone (optional)</span>
-          <input className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none focus:border-accent max-sm:text-base" type="tel" value={form.phone} onChange={set('phone')} disabled={loading} autoComplete="tel" pattern="[\d\s+\-()]{7,}" />
+          <span>Phone number</span>
+          <input className="px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none focus:border-accent max-sm:text-base" type="tel" required value={form.phone} onChange={set('phone')} disabled={loading} autoComplete="tel" pattern="[\d\s+\-()]{7,}" title="Enter a valid phone number" />
         </label>
         <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
           <span>Password</span>
