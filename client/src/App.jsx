@@ -20,6 +20,7 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import MyOrders from './pages/MyOrders'
 import Addresses from './pages/Addresses'
+import Account from './pages/Account'
 import VerifyEmail from './pages/VerifyEmail'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
@@ -106,6 +107,14 @@ export default function App() {
             element={
               <PublicLayout>
                 <RequireCustomerAuth><Addresses /></RequireCustomerAuth>
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/account"
+            element={
+              <PublicLayout>
+                <RequireCustomerAuth><Account /></RequireCustomerAuth>
               </PublicLayout>
             }
           />

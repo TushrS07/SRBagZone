@@ -1,7 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { getUser, setUserAuth } from '../userAuth'
+import { useCooldown } from '../hooks/useCooldown'
+
+const RESEND_COOLDOWN_SECONDS = 60
 
 const inputClass =
   'px-[14px] py-3 border border-line rounded-[12px] font-sans text-sm text-ink bg-white outline-none focus:border-accent max-sm:text-base'
@@ -12,13 +15,25 @@ export default function VerifyEmail() {
   const redirectTo = location.state?.from || '/'
   const currentUser = getUser()
 
-  const [email, setEmail] = useState(location.state?.email || currentUser?.email || '')
+  const initialEmail = location.state?.email || currentUser?.email || ''
+  const [email, setEmail] = useState(initialEmail)
+  // The email is bound to the account and cannot be changed here — once we know
+  // which address to verify, lock the field. A dedicated change-email flow would
+  // be the only way to alter it.
+  const emailLocked = Boolean(initialEmail)
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [resending, setResending] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [done, setDone] = useState(false)
+  const { remaining, active: cooldownActive, start: startCooldown } = useCooldown(RESEND_COOLDOWN_SECONDS)
+
+  // A code was just sent (during signup, or the resend that led here), so open
+  // with the cooldown already running to prevent an immediate duplicate send.
+  useEffect(() => {
+    startCooldown()
+  }, [startCooldown])
 
   const submit = async (e) => {
     e.preventDefault()
@@ -43,6 +58,7 @@ export default function VerifyEmail() {
     setResending(true)
     try {
       await api.resendVerification()
+      startCooldown()
       setNotice('A new code has been sent to your email.')
     } catch (err) {
       setError(err.message || 'Could not resend the code')
@@ -79,12 +95,13 @@ export default function VerifyEmail() {
         <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
           <span>Email</span>
           <input
-            className={inputClass}
+            className={`${inputClass} ${emailLocked ? 'bg-bg text-muted cursor-not-allowed' : ''}`}
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
+            readOnly={emailLocked}
             autoComplete="email"
           />
         </label>
@@ -117,10 +134,14 @@ export default function VerifyEmail() {
           <button
             type="button"
             onClick={resend}
-            disabled={resending}
-            className="text-[13px] text-muted text-center hover:underline disabled:opacity-60"
+            disabled={resending || cooldownActive}
+            className="text-[13px] text-muted text-center hover:underline disabled:opacity-60 disabled:no-underline"
           >
-            {resending ? 'Sending…' : "Didn't get a code? Resend"}
+            {resending
+              ? 'Sending…'
+              : cooldownActive
+                ? `Resend code in ${remaining}s`
+                : "Didn't get a code? Resend"}
           </button>
         ) : (
           <Link to="/login" className="text-[13px] text-muted text-center hover:underline">

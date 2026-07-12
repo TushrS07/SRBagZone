@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api'
 import { useApp } from '../useApp'
@@ -9,6 +10,16 @@ export default function MobileMenu({ open, onClose }) {
   const user = useUser()
   const isAdmin = user?.role === 'admin'
   const navigate = useNavigate()
+
+  // Lock background scroll while the menu is open.
+  useEffect(() => {
+    if (!open) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [open])
 
   const close = () => onClose?.()
 
@@ -72,6 +83,7 @@ export default function MobileMenu({ open, onClose }) {
                 <Link to="/admin/products" className="block px-3 py-[14px] rounded-[10px] text-[15px] font-medium text-ink min-h-[44px] transition-colors duration-150 hover:bg-bg">Admin panel</Link>
               ) : (
                 <>
+                  <Link to="/account" className="block px-3 py-[14px] rounded-[10px] text-[15px] font-medium text-ink min-h-[44px] transition-colors duration-150 hover:bg-bg">My account</Link>
                   <Link to="/my-orders" className="block px-3 py-[14px] rounded-[10px] text-[15px] font-medium text-ink min-h-[44px] transition-colors duration-150 hover:bg-bg">My orders</Link>
                   <Link to="/addresses" className="block px-3 py-[14px] rounded-[10px] text-[15px] font-medium text-ink min-h-[44px] transition-colors duration-150 hover:bg-bg">My addresses</Link>
                 </>

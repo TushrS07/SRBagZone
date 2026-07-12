@@ -102,28 +102,44 @@ export default function Home() {
 
       <section className="max-w-[1240px] mx-auto mt-7 px-7 grid grid-cols-4 gap-[14px] max-lg:grid-cols-2 max-sm:grid-cols-1 max-sm:px-4 max-sm:mt-5" aria-label="Customer benefits">
         <div className="bg-surface border border-line rounded-md px-[22px] py-[18px] flex items-center gap-[14px] text-sm text-ink-soft max-sm:px-[18px] max-sm:py-3.5">
-          <span className="w-[38px] h-[38px] rounded-[10px] bg-accent-soft text-accent-deep grid place-items-center text-lg shrink-0">⛟</span>
+          <span className="w-[38px] h-[38px] rounded-[10px] bg-accent-soft text-accent-deep grid place-items-center shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M1 3h13v10H1zM14 6h4l3 3v4h-7M5.5 18.5A1.5 1.5 0 1 0 5.5 15.5a1.5 1.5 0 0 0 0 3zM18.5 18.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
+            </svg>
+          </span>
           <div className="flex flex-col gap-0.5">
             <strong className="text-ink font-semibold">Free Shipping</strong>
             <span>On orders over ₹2,000</span>
           </div>
         </div>
         <div className="bg-surface border border-line rounded-md px-[22px] py-[18px] flex items-center gap-[14px] text-sm text-ink-soft max-sm:px-[18px] max-sm:py-3.5">
-          <span className="w-[38px] h-[38px] rounded-[10px] bg-accent-soft text-accent-deep grid place-items-center text-lg shrink-0">↺</span>
+          <span className="w-[38px] h-[38px] rounded-[10px] bg-accent-soft text-accent-deep grid place-items-center shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M3 12a9 9 0 1 0 3-6.7M3 3v4h4" />
+            </svg>
+          </span>
           <div className="flex flex-col gap-0.5">
             <strong className="text-ink font-semibold">30-Day Returns</strong>
             <span>Easy &amp; hassle-free</span>
           </div>
         </div>
         <div className="bg-surface border border-line rounded-md px-[22px] py-[18px] flex items-center gap-[14px] text-sm text-ink-soft max-sm:px-[18px] max-sm:py-3.5">
-          <span className="w-[38px] h-[38px] rounded-[10px] bg-accent-soft text-accent-deep grid place-items-center text-lg shrink-0">★</span>
+          <span className="w-[38px] h-[38px] rounded-[10px] bg-accent-soft text-accent-deep grid place-items-center shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5zM9 12l2 2 4-4" />
+            </svg>
+          </span>
           <div className="flex flex-col gap-0.5">
             <strong className="text-ink font-semibold">2-Year Warranty</strong>
             <span>Built to last</span>
           </div>
         </div>
         <div className="bg-surface border border-line rounded-md px-[22px] py-[18px] flex items-center gap-[14px] text-sm text-ink-soft max-sm:px-[18px] max-sm:py-3.5">
-          <span className="w-[38px] h-[38px] rounded-[10px] bg-accent-soft text-accent-deep grid place-items-center text-lg shrink-0">♥</span>
+          <span className="w-[38px] h-[38px] rounded-[10px] bg-accent-soft text-accent-deep grid place-items-center shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z" />
+            </svg>
+          </span>
           <div className="flex flex-col gap-0.5">
             <strong className="text-ink font-semibold">Loved by 50k+</strong>
             <span>4.8/5 average rating</span>
