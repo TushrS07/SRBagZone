@@ -7,6 +7,7 @@ export default function ProductForm({ product, onClose, onSaved }) {
   const [brands, setBrands] = useState([])
   const [form, setForm] = useState({
     name: product?.name || '',
+    mrp: product?.mrp ?? '',
     price: product?.price ?? '',
     stock_quantity: product?.stock_quantity ?? product?.stock ?? '',
     description: product?.description || '',
@@ -35,6 +36,7 @@ export default function ProductForm({ product, onClose, onSaved }) {
     try {
       const fd = new FormData()
       fd.append('name', form.name)
+      fd.append('mrp', String(form.mrp))
       fd.append('price', String(form.price))
       fd.append('stock_quantity', String(form.stock_quantity || 0))
       if (form.description) fd.append('description', form.description)
@@ -66,7 +68,11 @@ export default function ProductForm({ product, onClose, onSaved }) {
           </label>
           <div className="grid grid-cols-2 gap-3.5 max-sm:grid-cols-1">
             <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
-              <span>Price (₹) *</span>
+              <span>MRP (₹) *</span>
+              <input type="number" step="0.01" required value={form.mrp} onChange={set('mrp')} disabled={saving} className="px-[14px] py-[11px] border border-line rounded-[10px] font-sans text-sm text-ink bg-white outline-none focus:border-accent" />
+            </label>
+            <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">
+              <span>Selling Price (₹) *</span>
               <input type="number" step="0.01" required value={form.price} onChange={set('price')} disabled={saving} className="px-[14px] py-[11px] border border-line rounded-[10px] font-sans text-sm text-ink bg-white outline-none focus:border-accent" />
             </label>
             <label className="flex flex-col gap-1.5 text-[13px] text-ink-soft">

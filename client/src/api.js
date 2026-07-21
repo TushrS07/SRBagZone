@@ -71,11 +71,12 @@ export function normalizeProduct(p) {
     media: p.images || [], // backward compat alias
     created_at: p.created_at,
     updated_at: p.updated_at,
+    mrp: p.mrp,
+    was: p.mrp && p.mrp > p.price ? p.mrp : undefined,
     // Legacy/no-op fields the old UI referenced — keep undefined to avoid crashes
     rating: 0,
     reviews: 0,
     badge: undefined,
-    was: undefined,
   }
 }
 

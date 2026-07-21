@@ -19,18 +19,24 @@ export default function ProductCard({ product }) {
   const user = useUser()
   const isAdmin = user?.role === 'admin'
   const inCart = cart.find((i) => i.id === product.id)
+  const soldOut = product.stock === 0
 
   return (
-    <article className="group bg-surface rounded-md overflow-hidden border border-line transition-[transform,box-shadow] duration-250 flex flex-col hover:-translate-y-1 hover:shadow-md">
+    <article className={`group bg-surface rounded-md overflow-hidden border border-line transition-[transform,box-shadow] duration-250 flex flex-col ${soldOut ? 'opacity-80' : 'hover:-translate-y-1 hover:shadow-md'}`}>
       {/* Media */}
       <Link to={`/product/${product.id}`} className="relative aspect-square overflow-hidden bg-accent-soft block">
         <SmartImage
           src={product.image}
           alt={product.name}
           className="absolute inset-0"
-          imgClassName="w-full h-full object-cover transition-transform duration-500 ease-[ease] group-hover:scale-[1.06]"
+          imgClassName={`w-full h-full object-cover transition-transform duration-500 ease-[ease] ${soldOut ? 'grayscale opacity-60' : 'group-hover:scale-[1.06]'}`}
         />
-        {product.badge && (
+        {soldOut && (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end justify-center pb-5">
+            <span className="text-white text-[13px] font-bold uppercase tracking-[1.5px] bg-black/60 px-4 py-2 rounded-full">Out of Stock</span>
+          </div>
+        )}
+        {!soldOut && product.badge && (
           <span className={`absolute top-3 left-3 text-[#ffffff] text-[11px] font-bold tracking-[0.6px] uppercase py-[6px] px-[10px] rounded-full max-sm:text-[10px] max-sm:py-[5px] max-sm:px-2 ${product.badge === 'Sale' ? 'bg-danger' : 'bg-ink'}`}>
             {product.badge}
           </span>
@@ -44,12 +50,18 @@ export default function ProductCard({ product }) {
           <Link to={`/product/${product.id}`}>{product.name}</Link>
         </h3>
         <div className="mt-auto flex items-center justify-between gap-[10px] pt-[10px] max-sm:flex-col max-sm:items-start max-sm:gap-[10px]">
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-baseline gap-2 flex-wrap">
             <span className="text-xl font-bold text-ink max-sm:text-base">{formatINR(product.price)}</span>
             {product.was && <span className="text-[13px] text-muted line-through max-sm:text-xs">{formatINR(product.was)}</span>}
+            {product.was && product.was > product.price && (
+              <span className="text-[11px] font-semibold text-accent-deep bg-accent-soft px-2 py-0.5 rounded-full">
+                {Math.round(((product.was - product.price) / product.was) * 100)}% off
+              </span>
+            )}
           </div>
-          {!isAdmin && (inCart ? (
-            /* qty add-qty variant */
+          {!isAdmin && (soldOut ? (
+            <span className="text-[12px] font-semibold text-danger uppercase tracking-[0.5px]">Out of Stock</span>
+          ) : inCart ? (
             <div className="inline-flex items-center border border-transparent rounded-full overflow-hidden bg-accent-soft" aria-label="Quantity in cart">
               <button
                 type="button"

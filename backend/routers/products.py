@@ -27,6 +27,7 @@ def _fmt_product(p: Product, cat_name: Optional[str], brand_name: Optional[str],
         "id": str(p.id),
         "name": p.name,
         "description": p.description,
+        "mrp": float(p.mrp),
         "price": float(p.price),
         "stock_quantity": p.stock_quantity,
         "is_active": p.is_active,
@@ -167,6 +168,7 @@ async def create_product(
     admin: Admin,
     session: Session,
     name: str = Form(...),
+    mrp: float = Form(...),
     price: float = Form(...),
     stock_quantity: int = Form(0),
     description: Optional[str] = Form(None),
@@ -177,6 +179,7 @@ async def create_product(
     p = Product(
         name=name,
         description=description,
+        mrp=Decimal(str(mrp)),
         price=Decimal(str(price)),
         stock_quantity=stock_quantity,
         category_id=_parse_optional_int(category_id),
@@ -217,6 +220,7 @@ async def update_product(
     admin: Admin,
     session: Session,
     name: Optional[str] = Form(None),
+    mrp: Optional[float] = Form(None),
     price: Optional[float] = Form(None),
     stock_quantity: Optional[str] = Form(None),
     description: Optional[str] = Form(None),
@@ -228,6 +232,7 @@ async def update_product(
     p = await _get_or_404(session, pid)
 
     if name is not None: p.name = name
+    if mrp is not None: p.mrp = Decimal(str(mrp))
     if price is not None: p.price = Decimal(str(price))
     if stock_quantity is not None and stock_quantity != "": p.stock_quantity = int(stock_quantity)
     if description is not None: p.description = description

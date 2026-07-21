@@ -13,6 +13,7 @@ class Product(SQLModel, table=True):
     brand_id: Optional[int] = Field(default=None, foreign_key="brands.id", index=True)
     name: str = Field(max_length=255)
     description: Optional[str] = None
+    mrp: Decimal = Field(decimal_places=2, max_digits=10)
     price: Decimal = Field(decimal_places=2, max_digits=10)
     stock_quantity: int = 0
     image_url: Optional[str] = None  # Primary/legacy image; multi-image lives in product_images.

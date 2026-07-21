@@ -214,11 +214,11 @@ export default function ProductDetail() {
           <div className="pdp-rise flex items-center flex-wrap gap-x-4 gap-y-2 mt-6" style={{ animationDelay: '0.2s' }}>
             <span className="font-serif text-[40px] leading-none text-ink max-sm:text-[32px]">{formatINR(product.price)}</span>
             {product.was && (
-              <span className="text-[15px] text-muted line-through">{formatINR(product.was)}</span>
+              <span className="text-[16px] text-muted line-through">MRP {formatINR(product.was)}</span>
             )}
             {discount > 0 && (
-              <span className="text-[11px] font-semibold uppercase tracking-[1px] text-accent-deep bg-accent-soft px-2.5 py-1 rounded-full">
-                Save {discount}%
+              <span className="text-[12px] font-semibold uppercase tracking-[1px] text-accent-deep bg-accent-soft px-2.5 py-1 rounded-full">
+                {discount}% off
               </span>
             )}
           </div>
