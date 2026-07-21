@@ -255,12 +255,12 @@ async def delete_order(oid: str, admin: Admin, session: Session):
     if not o:
         raise HTTPException(status_code=404, detail={"message": "Order not found"})
     # Delete child rows first (order_items, payments) — no CASCADE configured
-    await session.execute(select(OrderItem).where(OrderItem.order_id == i))
-    items_rs = await session.execute(select(OrderItem).where(OrderItem.order_id == i))
-    for oi in items_rs.scalars().all():
-        await session.delete(oi)
-    pay_rs = await session.execute(select(Payment).where(Payment.order_id == i))
-    for p in pay_rs.scalars().all():
-        await session.delete(p)
-    await session.delete(o)
+    await session.execute(
+        delete(Payment).where(Payment.order_id == i)
+    )
+
+    await session.execute(
+        delete(Order).where(Order.id == i)
+    )
+
     await session.commit()
