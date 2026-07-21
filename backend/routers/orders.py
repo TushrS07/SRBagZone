@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select
+from sqlmodel import select, delete
 from middleware import get_current_user, require_admin, require_verified_customer
 from database import get_session
 from config import settings
