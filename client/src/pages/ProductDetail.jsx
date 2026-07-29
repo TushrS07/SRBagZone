@@ -37,7 +37,7 @@ const ASSURANCES = [
     ),
   },
   {
-    title: '2-year warranty',
+    title: '6-month warranty',
     sub: 'Craftsmanship guaranteed',
     icon: <path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5zM9 12l2 2 4-4" />,
   },

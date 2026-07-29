@@ -120,7 +120,7 @@ export default function Home() {
             </svg>
           </span>
           <div className="flex flex-col gap-0.5">
-            <strong className="text-ink font-semibold">2-Year Warranty</strong>
+            <strong className="text-ink font-semibold">6-Month Warranty</strong>
             <span>Built to last</span>
           </div>
         </div>
