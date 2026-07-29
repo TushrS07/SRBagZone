@@ -7,7 +7,7 @@ const REQUIREMENT_OPTIONS = [
   'Wholesale Order',
   'Bulk / Corporate Gifting',
   'Custom Order',
-  'Returns & Support',
+
 ]
 
 const PHONE_RE = /^[6-9]\d{9}$/

@@ -137,7 +137,7 @@ async def list_products(
     category_id: Optional[int] = None,
     brand_id: Optional[int] = None,
     skip: int = 0,
-    limit: int = 50,
+    limit: int = 500,
 ):
     stmt = select(Product).where(Product.is_active.is_(True))
     if category_id is not None:
@@ -158,7 +158,7 @@ async def get_product(pid: str, session: Session):
 
 # ─── Admin ──────────────────────────────────────────────────────────────────
 @admin_router.get("", summary="List all products including inactive")
-async def admin_list_products(admin: Admin, session: Session, skip: int = 0, limit: int = 100):
+async def admin_list_products(admin: Admin, session: Session, skip: int = 0, limit: int = 1000):
     stmt = select(Product).order_by(Product.created_at.desc()).offset(skip).limit(limit)
     return await _batch_hydrate(session, stmt)
 
@@ -206,7 +206,10 @@ async def create_product(
             session.add(p)
         except Exception as e:
             logger.error("[products] image upload failed: %s", e)
-            await session.rollback()
+            # Do NOT call session.rollback() here — the get_session dependency
+            # already rolls back on any unhandled exception. Calling it a second
+            # time corrupts the session state under PgBouncer/Neon pooler and
+            # can cause previously-committed products to appear deleted.
             raise HTTPException(status_code=400, detail={"message": f"Image upload failed: {e}"})
 
     await session.commit()
@@ -241,7 +244,7 @@ async def update_product(
     if is_active is not None: p.is_active = _parse_bool(is_active) or False
     p.updated_at = datetime.now(timezone.utc)
 
-    valid_images = [f for f in images if f.filename]
+    valid_images = [f for f in images if f.filename and f.size and f.size > 0]
     if valid_images:
         # Find existing image count for position offset
         existing = await session.execute(select(ProductImage).where(ProductImage.product_id == p.id))

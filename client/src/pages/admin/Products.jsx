@@ -87,9 +87,31 @@ export default function AdminProducts() {
     }
   }
 
+  const totalCount = products.length
+  const activeCount = products.filter((p) => p.is_active).length
+  const inactiveCount = totalCount - activeCount
+
   return (
     <div>
       {error && <p className="text-danger">⚠ {error}</p>}
+
+      {/* Product count summary */}
+      {!loading && (
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
+          <div className="flex items-center gap-2 px-4 py-2 bg-surface border border-line rounded-[10px] shadow-sm">
+            <span className="text-[22px] font-bold text-ink font-serif">{totalCount}</span>
+            <span className="text-[13px] text-muted font-medium">Total Products</span>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 bg-[#e2efe5] border border-[#b9d9c0] rounded-[10px]">
+            <span className="w-2 h-2 rounded-full bg-[#2f7a3a] inline-block" />
+            <span className="text-[13px] font-semibold text-[#2f7a3a]">{activeCount} Active</span>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 bg-[#fbe4e0] border border-[#f0c4bc] rounded-[10px]">
+            <span className="w-2 h-2 rounded-full bg-[#c0392b] inline-block" />
+            <span className="text-[13px] font-semibold text-danger">{inactiveCount} Inactive</span>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <RowsSkeleton rows={6} />

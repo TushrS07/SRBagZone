@@ -56,7 +56,7 @@ export default function Footer() {
           <h4 className="text-white text-[14px] uppercase tracking-[1.2px] mt-0 mb-4 font-semibold">Help</h4>
           <ul className="list-none p-0 m-0 flex flex-col gap-[10px]">
             <li><Link to="/shipping" className="text-[#c8bdb1] no-underline text-[14px] transition-colors duration-200 hover:text-accent">Shipping</Link></li>
-            <li><Link to="/returns" className="text-[#c8bdb1] no-underline text-[14px] transition-colors duration-200 hover:text-accent">Returns</Link></li>
+
             <li><Link to="/contact" className="text-[#c8bdb1] no-underline text-[14px] transition-colors duration-200 hover:text-accent">Contact</Link></li>
           </ul>
         </div>

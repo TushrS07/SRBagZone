@@ -100,7 +100,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="max-w-[1240px] mx-auto mt-7 px-7 grid grid-cols-4 gap-[14px] max-lg:grid-cols-2 max-sm:grid-cols-1 max-sm:px-4 max-sm:mt-5" aria-label="Customer benefits">
+      <section className="max-w-[1240px] mx-auto mt-7 px-7 grid grid-cols-3 gap-[14px] max-lg:grid-cols-2 max-sm:grid-cols-1 max-sm:px-4 max-sm:mt-5" aria-label="Customer benefits">
         <div className="bg-surface border border-line rounded-md px-[22px] py-[18px] flex items-center gap-[14px] text-sm text-ink-soft max-sm:px-[18px] max-sm:py-3.5">
           <span className="w-[38px] h-[38px] rounded-[10px] bg-accent-soft text-accent-deep grid place-items-center shrink-0">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -112,17 +112,7 @@ export default function Home() {
             <span>On orders over ₹2,000</span>
           </div>
         </div>
-        <div className="bg-surface border border-line rounded-md px-[22px] py-[18px] flex items-center gap-[14px] text-sm text-ink-soft max-sm:px-[18px] max-sm:py-3.5">
-          <span className="w-[38px] h-[38px] rounded-[10px] bg-accent-soft text-accent-deep grid place-items-center shrink-0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M3 12a9 9 0 1 0 3-6.7M3 3v4h4" />
-            </svg>
-          </span>
-          <div className="flex flex-col gap-0.5">
-            <strong className="text-ink font-semibold">30-Day Returns</strong>
-            <span>Easy &amp; hassle-free</span>
-          </div>
-        </div>
+
         <div className="bg-surface border border-line rounded-md px-[22px] py-[18px] flex items-center gap-[14px] text-sm text-ink-soft max-sm:px-[18px] max-sm:py-3.5">
           <span className="w-[38px] h-[38px] rounded-[10px] bg-accent-soft text-accent-deep grid place-items-center shrink-0">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

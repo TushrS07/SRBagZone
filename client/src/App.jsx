@@ -26,7 +26,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Contact from './pages/Contact'
 import Shipping from './pages/Shipping'
-import Returns from './pages/Returns'
+
 import SizeGuide from './pages/SizeGuide'
 import OurStory from './pages/OurStory'
 import Sustainability from './pages/Sustainability'
@@ -125,7 +125,7 @@ export default function App() {
           <Route path="/reset-password" element={<PublicLayout><ResetPassword /></PublicLayout>} />
           <Route path="/contact" element={<PublicLayout><Contact /></PublicLayout>} />
           <Route path="/shipping" element={<PublicLayout><Shipping /></PublicLayout>} />
-          <Route path="/returns" element={<PublicLayout><Returns /></PublicLayout>} />
+
           <Route path="/size-guide" element={<PublicLayout><SizeGuide /></PublicLayout>} />
           <Route path="/our-story" element={<PublicLayout><OurStory /></PublicLayout>} />
           <Route path="/sustainability" element={<PublicLayout><Sustainability /></PublicLayout>} />

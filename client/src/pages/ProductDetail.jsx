@@ -54,11 +54,6 @@ const DETAIL_SECTIONS = [
     title: 'Shipping & Delivery',
     body: 'Complimentary shipping on orders over ₹2,000. Every order is dispatched within 24–48 hours and arrives in 3–6 business days across India, carefully packed in signature SR Bagz Zone wrapping.',
   },
-  {
-    id: 'returns',
-    title: 'Returns & Warranty',
-    body: 'Not quite right? Return any unused piece within 30 days for a full refund. Each bag is backed by our 2-year craftsmanship warranty against defects in materials and workmanship.',
-  },
 ]
 
 export default function ProductDetail() {
